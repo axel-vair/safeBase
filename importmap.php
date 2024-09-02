@@ -25,4 +25,28 @@ return [
     '@hotwired/turbo' => [
         'version' => '7.3.0',
     ],
+    'admin-lte/dist/css/adminlte.min.css' => [
+        'version' => '3.2.0',
+        'type' => 'css',
+    ],
+    'fontawesome-free/css/all.css' => [
+        'version' => '1.0.4',
+        'type' => 'css',
+    ],
+    'bootstrap/dist/css/bootstrap.min.css' => [
+        'version' => '5.3.3',
+        'type' => 'css',
+    ],
+    'bootstrap/dist/js/bootstrap.min.js' => [
+        'version' => '5.3.3',
+    ],
+    '@popperjs/core' => [
+        'version' => '2.11.8',
+    ],
+    'admin-lte' => [
+        'version' => '3.2.0',
+    ],
+    'jquery' => [
+        'version' => '3.7.1',
+    ],
 ];
