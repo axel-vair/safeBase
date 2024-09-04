@@ -1,5 +1,53 @@
 {% extends 'base.html.twig' %}
 {% block title %}Safebase{% endblock %}
 {% block body %}
+    <div class="card" data-controller="general">
+        <div class="card-header border-transparent">
+            <h3 class="card-title">Database</h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-action="click->general#collapseCard">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body p-0" style="display: block;">
+            <div class="table-responsive">
+                <table class="table m-0">
+                    <thead>
+                    <tr>
+                        <th>Connexion</th>
+                        <th>Nom</th>
+                        <th>Tables</th>
+                        <th>Colonnes</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>
+                            {{ isConnected ? '🟢' : ' 🔴' }}
+                        </td>
+                        <td><a href="pages/examples/invoice.html">{{ database }}</a></td>
+                        <td>
+                            {{ columns|keys|join(', ') }}
+                        </td>
+                        <td>
+                            <ul>
+                                {% for tableName, tableColumns in columns %}
+                                    <li>
+                                        <strong>{{ tableName }}:</strong>
+                                        {{ tableColumns|join(', ') }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
+        <div class="card-footer clearfix" style="display: block;">
+            <a href="javascript:void(0)" class="btn btn-sm btn-info float-left">Faire un backup</a>
+        </div>
+    </div>
 {% endblock %}
