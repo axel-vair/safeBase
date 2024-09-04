@@ -9,10 +9,24 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class DefaultController extends AbstractController
 {
+    /**
+     * Function that get informations of the database Safebase
+     * @param EntityManagerInterface $entityManager
+     * @return Response
+     * @throws \Doctrine\DBAL\Exception
+     */
     #[Route('/', name: 'app_default')]
     public function index(EntityManagerInterface $entityManager): Response
     {
         $connection = $entityManager->getConnection();
+
+        // Vérifier si la connexion est active
+        try {
+            $isConnected = $connection->connect(); // Tente de se connecter
+        } catch (\Exception $e) {
+            $isConnected = false; // En cas d'erreur de connexion
+        }
+
         $params = $connection->getParams();
         $databaseName = $params['dbname'] ?? 'Nom de la base de données non défini';
 
@@ -29,11 +43,6 @@ class DefaultController extends AbstractController
                 }, $tableColumns);
             }
         }
-
-
-        // Vérifier si la connexion est active
-        $isConnected = $connection->isConnected();
-
 
         return $this->render('default/index.html.twig', [
             'database' => $databaseName,

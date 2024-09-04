@@ -15,6 +15,7 @@
                 <table class="table m-0">
                     <thead>
                     <tr>
+                        <th>Connexion</th>
                         <th>Nom</th>
                         <th>Tables</th>
                         <th>Colonnes</th>
@@ -22,6 +23,9 @@
                     </thead>
                     <tbody>
                     <tr>
+                        <td>
+                            {{ isConnected ? '🟢' : ' 🔴' }}
+                        </td>
                         <td><a href="pages/examples/invoice.html">{{ database }}</a></td>
                         <td>
                             {{ columns|keys|join(', ') }}
