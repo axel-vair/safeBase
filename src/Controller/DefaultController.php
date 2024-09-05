@@ -2,8 +2,6 @@
 
 namespace App\Controller;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,59 +10,81 @@ use Symfony\Component\Routing\Attribute\Route;
 class DefaultController extends AbstractController
 {
     /**
-     * Function that get informations of the database Safebase
-     * @param EntityManagerInterface $entityManager
+     * Function that gets information of the databases Safebase, Backup and Backuptwo
+     * @param ManagerRegistry $doctrine
      * @return Response
      * @throws \Doctrine\DBAL\Exception
      */
     #[Route('/', name: 'app_default')]
-    public function index(EntityManagerInterface $entityManager, ManagerRegistry $doctrine): Response
+    public function index(ManagerRegistry $doctrine): Response
     {
-        $safebaseConnection = $doctrine->getConnection('default'); // Assurez-vous que 'default' est configuré pour Safebase
+        // Connection to the database Safebase
+        $safebaseConnection = $doctrine->getConnection('default');
+        $safebaseInfo = $this->getDatabaseInfo($safebaseConnection);
 
-        // Connexion à la base de données Backup
-    /*    $backupConnection = $doctrine->getConnection('backup'); // Assurez-vous qu*/
-        $connection = $entityManager->getConnection();
+        // Connection to the database Backup
+        $backupConnection = $doctrine->getConnection('backup');
+        $backupInfo = $this->getDatabaseInfo($backupConnection);
 
-        // Vérifier si la connexion est active
-        try {
-            $isConnected = $connection->connect(); // Tente de se connecter
-        } catch (\Exception $e) {
-            $isConnected = false; // En cas d'erreur de connexion
-        }
-
-        $params = $connection->getParams();
-
-        $databaseName = $params['dbname'] ?? 'Nom de la base de données non défini';
-
-        $schemaManager = $connection->getSchemaManager();
-        $tables = $schemaManager->listTables();
-
-        $columns = [];
-        foreach ($tables as $table) {
-            $tableName = $table->getName();
-            if (!in_array($tableName, ['doctrine_migration_versions', 'messenger_messages'])) {
-                $tableColumns = $schemaManager->listTableColumns($tableName);
-                $columns[$tableName] = array_map(function ($column) {
-                    return $column->getName();
-                }, $tableColumns);
-            }
-        }
-
-        $schemaTool = new SchemaTool($entityManager);
-        $metaData = $entityManager->getMetadataFactory()->getAllMetadata();
-        $sql = $schemaTool->getCreateSchemaSql($metaData);
+        // Connection to the database Backup 2
+        $backuptwoConnection = $doctrine->getConnection('backuptwo');
+        $backuptwoInfo = $this->getDatabaseInfo($backuptwoConnection);
 
         return $this->render('default/index.html.twig', [
-            'database' => $databaseName,
-            'tables' => $tables,
-            'isConnected' => $isConnected,
-            'columns' => $columns,
-/*            'backupConnection' => $backupConnection,*/
-            'safebaseConnection' => $safebaseConnection,
-            'params' => $params,
-            'sql' => $sql,
+            'safebase' => $safebaseInfo,
+            'backup' => $backupInfo,
+            'backuptwo' => $backuptwoInfo,
         ]);
     }
 
+    /**
+     * Get database information
+     * @param \Doctrine\DBAL\Connection $connection
+     * @return array
+     * @throws \Doctrine\DBAL\Exception
+     */
+    private function getDatabaseInfo($connection): array
+    {
+        $isConnected = false;
+        $errorMessage = '';
+
+        try {
+            $connection->connect();
+            $isConnected = true;
+        } catch (\Exception $e) {
+            $errorMessage = $e->getMessage();
+        }
+
+        $params = $connection->getParams();
+        $databaseName = $params['dbname'] ?? 'Nom de la base de données non défini';
+
+        $tables = [];
+        $columns = [];
+
+        if ($isConnected) {
+            $schemaManager = $connection->createSchemaManager();
+            $allTables = $schemaManager->listTableNames();
+
+            $excludedTables = ['doctrine_migration_versions', 'messenger_messages'];
+
+            foreach ($allTables as $tableName) {
+                if (!in_array($tableName, $excludedTables)) {
+                    $tableColumns = $schemaManager->listTableColumns($tableName);
+                    $columns[$tableName] = array_map(function ($column) {
+                        return $column->getName();
+                    }, $tableColumns);
+                    $tables[] = $tableName;
+                }
+            }
+        }
+
+        return [
+            'name' => $databaseName,
+            'isConnected' => $isConnected,
+            'error' => $errorMessage,
+            'tables' => $tables,
+            'columns' => $columns,
+            'params' => $params,
+        ];
+    }
 }
