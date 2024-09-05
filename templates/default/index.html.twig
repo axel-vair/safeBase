@@ -18,7 +18,7 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td>{{ safebase.name }}</td>
+                        <td><a href="{{ path('app_dump', {'name': safebase.name}) }}">{{ safebase.name }}</a></td>
                         <td>{{ safebase.isConnected ? '🟢 Connectée' : '🔴 Non Connectée' }}</td>
                         <td>
                             {{ safebase.tables|join(', ') }}
@@ -35,7 +35,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>{{ backup.name }}</td>
+                        <td><a href="{{ path('app_dump', {'name': backup.name}) }}">{{ backup.name }}</a></td>
                         <td>{{ backup.isConnected ? '🟢 Connectée' : '🔴 Non Connectée' }}</td>
                         <td>
                             {{ backup.tables|join(', ') }}
@@ -52,7 +52,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>{{ backuptwo.name }}</td>
+                        <td><a href="{{ path('app_dump', {'name': backuptwo.name}) }}">{{ backuptwo.name }}</a></td>
                         <td>{{ backuptwo.isConnected ? '🟢 Connectée' : '🔴 Non Connectée' }}</td>
                         <td>
                             {{ backuptwo.tables|join(', ') }}
