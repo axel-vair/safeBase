@@ -1,38 +1,65 @@
 {% extends 'base.html.twig' %}
-{% block title %}Safebase{% endblock %}
+{% block title %}Database Information{% endblock %}
 {% block body %}
     <div class="card" data-controller="general">
         <div class="card-header border-transparent">
-            <h3 class="card-title">Database</h3>
-            <div class="card-tools">
-                <button type="button" class="btn btn-tool" data-action="click->general#collapseCard">
-                    <i class="fas fa-minus"></i>
-                </button>
-            </div>
+            <h3 class="card-title">Database Information</h3>
         </div>
-        <div class="card-body p-0" style="display: block;">
+        <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table m-0">
                     <thead>
                     <tr>
-                        <th>Connexion</th>
-                        <th>Nom</th>
+                        <th>Database</th>
+                        <th>Statut</th>
                         <th>Tables</th>
                         <th>Colonnes</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
+                        <td>{{ safebase.name }}</td>
+                        <td>{{ safebase.isConnected ? '🟢 Connectée' : '🔴 Non Connectée' }}</td>
                         <td>
-                            {{ isConnected ? '🟢' : ' 🔴' }}
-                        </td>
-                        <td><a href="pages/examples/invoice.html">{{ database }}</a></td>
-                        <td>
-                            {{ columns|keys|join(', ') }}
+                            {{ safebase.tables|join(', ') }}
                         </td>
                         <td>
                             <ul>
-                                {% for tableName, tableColumns in columns %}
+                                {% for tableName, tableColumns in safebase.columns %}
+                                    <li>
+                                        <strong>{{ tableName }}:</strong>
+                                        {{ tableColumns|join(', ') }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{{ backup.name }}</td>
+                        <td>{{ backup.isConnected ? '🟢 Connectée' : '🔴 Non Connectée' }}</td>
+                        <td>
+                            {{ backup.tables|join(', ') }}
+                        </td>
+                        <td>
+                            <ul>
+                                {% for tableName, tableColumns in backup.columns %}
+                                    <li>
+                                        <strong>{{ tableName }}:</strong>
+                                        {{ tableColumns|join(', ') }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{{ backuptwo.name }}</td>
+                        <td>{{ backuptwo.isConnected ? '🟢 Connectée' : '🔴 Non Connectée' }}</td>
+                        <td>
+                            {{ backuptwo.tables|join(', ') }}
+                        </td>
+                        <td>
+                            <ul>
+                                {% for tableName, tableColumns in backuptwo.columns %}
                                     <li>
                                         <strong>{{ tableName }}:</strong>
                                         {{ tableColumns|join(', ') }}
@@ -46,7 +73,7 @@
             </div>
         </div>
 
-        <div class="card-footer clearfix" style="display: block;">
+        <div class="card-footer clearfix">
             <a href="javascript:void(0)" class="btn btn-sm btn-info float-left">Faire un backup</a>
         </div>
     </div>
