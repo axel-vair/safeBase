@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\SchemaTool;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -16,8 +18,12 @@ class DefaultController extends AbstractController
      * @throws \Doctrine\DBAL\Exception
      */
     #[Route('/', name: 'app_default')]
-    public function index(EntityManagerInterface $entityManager): Response
+    public function index(EntityManagerInterface $entityManager, ManagerRegistry $doctrine): Response
     {
+        $safebaseConnection = $doctrine->getConnection('default'); // Assurez-vous que 'default' est configuré pour Safebase
+
+        // Connexion à la base de données Backup
+    /*    $backupConnection = $doctrine->getConnection('backup'); // Assurez-vous qu*/
         $connection = $entityManager->getConnection();
 
         // Vérifier si la connexion est active
@@ -28,6 +34,7 @@ class DefaultController extends AbstractController
         }
 
         $params = $connection->getParams();
+
         $databaseName = $params['dbname'] ?? 'Nom de la base de données non défini';
 
         $schemaManager = $connection->getSchemaManager();
@@ -44,11 +51,20 @@ class DefaultController extends AbstractController
             }
         }
 
+        $schemaTool = new SchemaTool($entityManager);
+        $metaData = $entityManager->getMetadataFactory()->getAllMetadata();
+        $sql = $schemaTool->getCreateSchemaSql($metaData);
+
         return $this->render('default/index.html.twig', [
             'database' => $databaseName,
             'tables' => $tables,
             'isConnected' => $isConnected,
             'columns' => $columns,
+/*            'backupConnection' => $backupConnection,*/
+            'safebaseConnection' => $safebaseConnection,
+            'params' => $params,
+            'sql' => $sql,
         ]);
     }
+
 }
