@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\BackupLog;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,7 +24,7 @@ class DumpController extends AbstractController
      * @param string $name
      * @return Response
      */
-    public function dumpDatabase(EntityManagerInterface $entityManager, string $name): Response
+    private function dumpDatabase(EntityManagerInterface $entityManager, string $name): Response
     {
         $connection = $entityManager->getConnection();
         $params = $connection->getParams();
@@ -44,23 +45,18 @@ class DumpController extends AbstractController
         }
 
         // Determine the container and port based on the database name
-        $containerName = '';
-        $port = '';
-
+        $port = '5432';
         switch ($name) {
             case 'safebase':
                 $containerName = 'safebase-database-1';
-                $port = '5432';
                 break;
             case 'backup':
                 $containerName = 'safebase-backup-1';
                 $user = 'backup';
-                $port = '5432';
                 break;
             case 'backuptwo':
                 $containerName = 'safebase-backuptwo-1';
                 $user = 'backuptwo';
-                $port = '5432';
                 break;
             default:
                 return new Response('Database not found: ' . htmlspecialchars($name), Response::HTTP_NOT_FOUND);
@@ -79,9 +75,25 @@ class DumpController extends AbstractController
         exec($command, $output, $returnVar);
 
         if ($returnVar !== 0) {
-            return new Response('Erreur lors du dump de la base de données: ' . implode("\n", $output), Response::HTTP_INTERNAL_SERVER_ERROR);
+            $this->addFlash('error', 'Erreur lors du dump de la base de données: ' . implode("\n", $output), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return new Response('Dump de la base de données créé avec succès : ' . basename($dumpFile));
+        $this->dumpBackupLog($entityManager, $name, $dumpFile);
+
+        $this->addFlash('success', 'Dump de la base de données créé avec succès : ' . basename($dumpFile));
+
+        return $this->redirectToRoute('app_default');
+    }
+
+    private function dumpBackupLog(EntityManagerInterface $entityManager, string $name, string $dumpFile): void
+    {
+        $backupLog = new BackupLog();
+        $backupLog->setDatabaseName($name);
+        $backupLog->setFileName(basename($dumpFile));
+        $backupLog->setFilePath($dumpFile);
+        $backupLog->setCreatedAt(new \DateTimeImmutable());
+
+        $entityManager->persist($backupLog);
+        $entityManager->flush();
     }
 }

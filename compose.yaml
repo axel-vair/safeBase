@@ -24,6 +24,16 @@ services:
     ports:
       - '5459:5432'
 
+  backupinfo:
+    image: mysql
+    environment:
+      MYSQL_DATABASE: backupinfo
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - '3306:3306'
+
   adminer:
     image: adminer
     restart: always

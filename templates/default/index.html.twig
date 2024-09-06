@@ -1,9 +1,16 @@
 {% extends 'base.html.twig' %}
-{% block title %}Database Information{% endblock %}
+{% block title %}Informations{% endblock %}
 {% block body %}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
     <div class="card" data-controller="general">
         <div class="card-header border-transparent">
-            <h3 class="card-title">Database Information</h3>
+            <h3 class="card-title">Informations</h3>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -14,6 +21,7 @@
                         <th>Statut</th>
                         <th>Tables</th>
                         <th>Colonnes</th>
+                        <th>Action</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -33,6 +41,9 @@
                                 {% endfor %}
                             </ul>
                         </td>
+                        <td>
+                            <a href="{{ path('app_dump', {'name': safebase.name}) }}" class="btn btn-sm btn-info">Faire un backup de {{ safebase.name }}</a>
+                        </td>
                     </tr>
                     <tr>
                         <td><a href="{{ path('app_dump', {'name': backup.name}) }}">{{ backup.name }}</a></td>
@@ -49,6 +60,9 @@
                                     </li>
                                 {% endfor %}
                             </ul>
+                        </td>
+                        <td>
+                            <a href="{{ path('app_dump', {'name': backup.name}) }}" class="btn btn-sm btn-info">Faire un backup de {{ backup.name }}</a>
                         </td>
                     </tr>
                     <tr>
@@ -67,14 +81,13 @@
                                 {% endfor %}
                             </ul>
                         </td>
+                        <td>
+                            <a href="{{ path('app_dump', {'name': backuptwo.name}) }}" class="btn btn-sm btn-info">Faire un backup de {{ backuptwo.name }}</a>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
-        </div>
-
-        <div class="card-footer clearfix">
-            <a href="javascript:void(0)" class="btn btn-sm btn-info float-left">Faire un backup</a>
         </div>
     </div>
 {% endblock %}
