@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\BackupLog;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -11,9 +12,9 @@ use Symfony\Component\Routing\Attribute\Route;
 class DumpController extends AbstractController
 {
     #[Route('/dump/{name}', name: 'app_dump')]
-    public function dump(EntityManagerInterface $entityManager, string $name): Response
+    public function dump(EntityManagerInterface $entityManager, string $name, ManagerRegistry $doctrine): Response
     {
-        return $this->dumpDatabase($entityManager, $name);
+        return $this->dumpDatabase($entityManager, $name, $doctrine);
     }
 
     /**
@@ -22,9 +23,10 @@ class DumpController extends AbstractController
      * set the path to back up our file then launch the command to dump the database
      * @param EntityManagerInterface $entityManager
      * @param string $name
+     * @param ManagerRegistry $doctrine
      * @return Response
      */
-    private function dumpDatabase(EntityManagerInterface $entityManager, string $name): Response
+    private function dumpDatabase(EntityManagerInterface $entityManager, string $name, ManagerRegistry $doctrine): Response
     {
         $connection = $entityManager->getConnection();
         $params = $connection->getParams();
@@ -47,8 +49,11 @@ class DumpController extends AbstractController
         // Determine the container and port based on the database name
         $port = '5432';
         switch ($name) {
-            case 'safebase':
+            case 'backupinfo':
                 $containerName = 'safebase-database-1';
+                break;
+            case 'fixtures_db':
+                $containerName = 'safebase-fixtures_db-1';
                 break;
             case 'backup':
                 $containerName = 'safebase-backup-1';
@@ -75,25 +80,28 @@ class DumpController extends AbstractController
         exec($command, $output, $returnVar);
 
         if ($returnVar !== 0) {
-            $this->addFlash('error', 'Erreur lors du dump de la base de données: ' . implode("\n", $output), Response::HTTP_INTERNAL_SERVER_ERROR);
+            $this->addFlash('error', 'Erreur lors du dump de la base de données: ' . implode("\n", $output));
+            return $this->redirectToRoute('app_default');
         }
 
-        $this->dumpBackupLog($entityManager, $name, $dumpFile);
+        $this->dumpBackupLog($doctrine, $name, $dumpFile);
 
         $this->addFlash('success', 'Dump de la base de données créé avec succès : ' . basename($dumpFile));
 
         return $this->redirectToRoute('app_default');
     }
 
-    private function dumpBackupLog(EntityManagerInterface $entityManager, string $name, string $dumpFile): void
+    private function dumpBackupLog(ManagerRegistry $doctrine, string $name, string $dumpFile): void
     {
+        $backupInfoEntityManager = $doctrine->getManager('default');
+
         $backupLog = new BackupLog();
         $backupLog->setDatabaseName($name);
         $backupLog->setFileName(basename($dumpFile));
         $backupLog->setFilePath($dumpFile);
         $backupLog->setCreatedAt(new \DateTimeImmutable());
 
-        $entityManager->persist($backupLog);
-        $entityManager->flush();
+        $backupInfoEntityManager->persist($backupLog);
+        $backupInfoEntityManager->flush();
     }
 }

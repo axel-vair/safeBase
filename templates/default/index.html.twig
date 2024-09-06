@@ -26,14 +26,12 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td><a href="{{ path('app_dump', {'name': safebase.name}) }}">{{ safebase.name }}</a></td>
-                        <td>{{ safebase.isConnected ? '🟢 Connectée' : '🔴 Non Connectée' }}</td>
-                        <td>
-                            {{ safebase.tables|join(', ') }}
-                        </td>
+                        <td><a href="{{ path('app_dump', {'name': default.name}) }}">{{ default.name }}</a></td>
+                        <td>{{ default.isConnected ? '🟢 Connectée' : '🔴 Non Connectée' }}</td>
+                        <td>{{ default.tables|join(', ') }}</td>
                         <td>
                             <ul>
-                                {% for tableName, tableColumns in safebase.columns %}
+                                {% for tableName, tableColumns in default.columns %}
                                     <li>
                                         <strong>{{ tableName }}:</strong>
                                         {{ tableColumns|join(', ') }}
@@ -42,15 +40,31 @@
                             </ul>
                         </td>
                         <td>
-                            <a href="{{ path('app_dump', {'name': safebase.name}) }}" class="btn btn-sm btn-info">Faire un backup de {{ safebase.name }}</a>
+                            <a href="{{ path('app_dump', {'name': default.name}) }}" class="btn btn-sm btn-info">Faire un backup de {{ default.name }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="{{ path('app_dump', {'name': fixtures_db.name}) }}">{{ fixtures_db.name }}</a></td>
+                        <td>{{ fixtures_db.isConnected ? '🟢 Connectée' : '🔴 Non Connectée' }}</td>
+                        <td>{{ fixtures_db.tables|join(', ') }}</td>
+                        <td>
+                            <ul>
+                                {% for tableName, tableColumns in fixtures_db.columns %}
+                                    <li>
+                                        <strong>{{ tableName }}:</strong>
+                                        {{ tableColumns|join(', ') }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>
+                            <a href="{{ path('app_dump', {'name': fixtures_db.name}) }}" class="btn btn-sm btn-info">Faire un backup de {{ fixtures_db.name }}</a>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="{{ path('app_dump', {'name': backup.name}) }}">{{ backup.name }}</a></td>
                         <td>{{ backup.isConnected ? '🟢 Connectée' : '🔴 Non Connectée' }}</td>
-                        <td>
-                            {{ backup.tables|join(', ') }}
-                        </td>
+                        <td>{{ backup.tables|join(', ') }}</td>
                         <td>
                             <ul>
                                 {% for tableName, tableColumns in backup.columns %}
@@ -68,9 +82,7 @@
                     <tr>
                         <td><a href="{{ path('app_dump', {'name': backuptwo.name}) }}">{{ backuptwo.name }}</a></td>
                         <td>{{ backuptwo.isConnected ? '🟢 Connectée' : '🔴 Non Connectée' }}</td>
-                        <td>
-                            {{ backuptwo.tables|join(', ') }}
-                        </td>
+                        <td>{{ backuptwo.tables|join(', ') }}</td>
                         <td>
                             <ul>
                                 {% for tableName, tableColumns in backuptwo.columns %}

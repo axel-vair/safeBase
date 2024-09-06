@@ -6,6 +6,7 @@ use App\Repository\BackupLogRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: BackupLogRepository::class)]
+#[ORM\Table(name: 'backup_log')]
 class BackupLog
 {
     #[ORM\Id]
@@ -76,5 +77,10 @@ class BackupLog
         $this->createdAt = $createdAt;
 
         return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->databaseName;
     }
 }
