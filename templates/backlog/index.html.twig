@@ -15,6 +15,7 @@
                         <th>Nom du Fichier</th>
                         <th>Chemin du Fichier</th>
                         <th>Date</th>
+                        <th>Action</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -30,6 +31,7 @@
                                 </a>
                             </td>
                             <td>{{ log.createdAt|date('d-m-Y H:i:s') }}</td>
+                            <td><a href="#" class="btn btn-sm btn-info">Restaurer</a> </td>
                         </tr>
                     {% else %}
                         <tr>
