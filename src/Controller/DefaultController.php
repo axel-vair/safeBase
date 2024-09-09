@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class DefaultController extends AbstractController
 {
     /**
-     * Function that gets information of the databases Safebase, Backup and Backuptwo
+     * Function that gets information of the databases Safebase, Backup, Backuptwo, and Fixtures
      * @param ManagerRegistry $doctrine
      * @return Response
      * @throws \Doctrine\DBAL\Exception
@@ -18,9 +18,6 @@ class DefaultController extends AbstractController
     #[Route('/', name: 'app_default')]
     public function index(ManagerRegistry $doctrine): Response
     {
-        // Connection to the database Safebase
-        $safebaseConnection = $doctrine->getConnection('default');
-        $safebaseInfo = $this->getDatabaseInfo($safebaseConnection);
 
         // Connection to the database Backup
         $backupConnection = $doctrine->getConnection('backup');
@@ -30,13 +27,21 @@ class DefaultController extends AbstractController
         $backuptwoConnection = $doctrine->getConnection('backuptwo');
         $backuptwoInfo = $this->getDatabaseInfo($backuptwoConnection);
 
+        // Connection to the fixtures database
+        $fixturesDbConnection = $doctrine->getConnection('fixtures_db');
+        $fixturesDbInfo = $this->getDatabaseInfo($fixturesDbConnection);
+
+        // Connection to the backupinfo database
+        $backupinfoConnection = $doctrine->getConnection('default');
+        $backupinfoInfo = $this->getDatabaseInfo($backupinfoConnection);
+
         return $this->render('default/index.html.twig', [
-            'safebase' => $safebaseInfo,
+            'default' => $backupinfoInfo,
             'backup' => $backupInfo,
             'backuptwo' => $backuptwoInfo,
+            'fixtures_db' => $fixturesDbInfo,
         ]);
     }
-
     /**
      * Get database information
      * @param \Doctrine\DBAL\Connection $connection
