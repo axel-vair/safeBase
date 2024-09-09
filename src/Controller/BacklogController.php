@@ -14,13 +14,8 @@ class BacklogController extends AbstractController
     #[Route('/backlog', name: 'app_backups')]
     public function index(ManagerRegistry $doctrine): Response
     {
-        // Récupérer le gestionnaire d'entités pour la connexion backupinfo
         $backupInfoEntityManager = $doctrine->getManager('backupinfo');
-
-        // Récupérer le repository pour BackupLog
         $backupLogRepository = $backupInfoEntityManager->getRepository(BackupLog::class);
-
-        // Récupérer tous les logs de sauvegarde
         $backupLogs = $backupLogRepository->findAll();
 
         return $this->render('backlog/index.html.twig', [
