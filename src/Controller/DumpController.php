@@ -34,7 +34,7 @@ class DumpController extends AbstractController
 
         // Date and hour to version the file
         $dateTime = new \DateTime('now', new DateTimeZone('Europe/Paris'));
-        $formattedDateTime = $dateTime->format('d-m-Y H-i-s');
+        $formattedDateTime = $dateTime->format('d-m-Y_H-i-s');
 
         // Path file dump with date and hour
         $dumpFile = __DIR__ . '/../../var/dump/' . $name . '_dump_' . $formattedDateTime . '.sql';
@@ -123,7 +123,10 @@ class DumpController extends AbstractController
         $backupLog->setDatabaseName($name);
         $backupLog->setFileName(basename($dumpFile));
         $backupLog->setFilePath($dumpFile);
-        $backupLog->setCreatedAt(new \DateTimeImmutable());
+
+        $dateTime = new \DateTimeImmutable('now', new DateTimeZone('Europe/Paris'));
+
+        $backupLog->setCreatedAt($dateTime);
 
         $backupInfoEntityManager->persist($backupLog);
         $backupInfoEntityManager->flush();
