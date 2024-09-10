@@ -45,55 +45,48 @@ class DumpController extends AbstractController
         }
 
         // Determine the container name and command based on the database type
-        $containerName = '';
-        $command = '';
-        $port = '';
-
+        $port = '5432';
         // Dynamically determine the database type
         switch ($name) {
             case 'backupinfo':
                 $containerName = 'safebase-database-1';
-                $port = '3306'; // MySQL port
                 $command = 'mysqldump';
                 break;
             case 'fixtures_db':
                 $containerName = 'safebase-fixtures_db-1';
-                $port = '3306'; // MySQL port
                 $command = 'mysqldump';
                 break;
             case 'backup':
                 $containerName = 'safebase-backup-1';
-                $port = '5432'; // PostgreSQL port
                 $command = 'pg_dump';
                 break;
             case 'backuptwo':
                 $containerName = 'safebase-backuptwo-1';
-                $port = '5459'; // PostgreSQL port
                 $command = 'pg_dump';
                 break;
             default:
                 return new Response('Database not found: ' . htmlspecialchars($name), Response::HTTP_NOT_FOUND);
         }
 
-        // Build the command dynamically
         if ($command === 'mysqldump') {
             $command = sprintf(
-                'docker exec -t %s %s -u %s -p%s %s > %s 2>&1',
+                'docker exec -t %s mysqldump -u %s -p%s --no-tablespaces -h %s %s > %s',
                 escapeshellarg($containerName),
-                escapeshellarg($command),
-                escapeshellarg($params['user']),
-                escapeshellarg($params['password']), // Assuming password is provided
-                escapeshellarg($name),
+                escapeshellarg('user'), // Remplace par le bon utilisateur
+                escapeshellarg('password'), // Remplace par le bon mot de passe
+                escapeshellarg('localhost'), // Remplace par le bon hôte si nécessaire
+                escapeshellarg($name), // Nom de la base de données
                 escapeshellarg($dumpFile)
             );
-        } else if ($command === 'pg_dump') {
+        } elseif ($command === 'pg_dump') {
             $command = sprintf(
-                'docker exec -t %s %s -U %s -h localhost -p %s %s > %s 2>&1',
+                'docker exec -t %s sh -c "PGPASSWORD=%s pg_dump -U %s -h %s -p %s %s" > %s',
                 escapeshellarg($containerName),
-                escapeshellarg($command),
-                escapeshellarg($params['user']),
-                escapeshellarg($port),
-                escapeshellarg($name),
+                escapeshellarg('password'), // Remplace par le bon mot de passe
+                escapeshellarg('user'), // Remplace par le bon utilisateur
+                escapeshellarg($containerName), // Utilise le nom du conteneur comme hôte
+                escapeshellarg($port), // Port par défaut
+                escapeshellarg($name), // Nom de la base de données
                 escapeshellarg($dumpFile)
             );
         }
@@ -115,6 +108,7 @@ class DumpController extends AbstractController
 
         return $this->redirectToRoute('app_default');
     }
+
     private function dumpBackupLog(ManagerRegistry $doctrine, string $name, string $dumpFile): void
     {
         $backupInfoEntityManager = $doctrine->getManager('backupinfo');

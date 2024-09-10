@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Restaurer la Base de Données{% endblock %}
+
+{% block body %}
+    <div class="card">
+        <div class="card-header">
+            <h3>Restaurer la Base de Données</h3>
+        </div>
+        <div class="card-body">
+            {{ form_start(form) }}
+            {{ form_widget(form) }}
+            <button type="submit" class="btn btn-primary">Restaurer</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

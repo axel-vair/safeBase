@@ -31,8 +31,7 @@
                                 </a>
                             </td>
                             <td>{{ log.createdAt|date('d-m-Y H:i:s') }}</td>
-                            <td><a href="#" class="btn btn-sm btn-info">Restaurer</a> </td>
-                        </tr>
+                            <td><a href="{{ path('app_backup_restore', { 'id': log.id }) }}" class="btn btn-sm btn-info">Restaurer</a></td>                        </tr>
                     {% else %}
                         <tr>
                             <td colspan="5">Aucun log de sauvegarde trouvé.</td>

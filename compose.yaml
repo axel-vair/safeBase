@@ -33,7 +33,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-backup}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
-      POSTGRES_USER: ${POSTGRES_USER:-backup}
+      POSTGRES_USER: ${POSTGRES_USER:-user}
     ports:
       - '5458:5432'
 
@@ -42,7 +42,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-backuptwo}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
-      POSTGRES_USER: ${POSTGRES_USER:-backuptwo}
+      POSTGRES_USER: ${POSTGRES_USER:-user}
     ports:
       - '5459:5432'
 
