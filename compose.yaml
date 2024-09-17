@@ -1,13 +1,12 @@
 services:
   database:
-    image: mysql:latest
+    image: postgres:${POSTGRES_VERSION:-16}-alpine
     environment:
-      MYSQL_DATABASE: backupinfo
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: password
+      POSTGRES_DB: ${POSTGRES_DB:-backupinfo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_USER: ${POSTGRES_USER:-user}
     ports:
-      - '3306:3306'
+      - '5460:5432'
 
   fixtures_db:
     image: mysql:latest

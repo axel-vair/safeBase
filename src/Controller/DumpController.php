@@ -46,11 +46,12 @@ class DumpController extends AbstractController
 
         // Determine the container name and command based on the database type
         $port = '5432';
+        $password = 'password';
         // Dynamically determine the database type
         switch ($name) {
             case 'backupinfo':
                 $containerName = 'safebase-database-1';
-                $command = 'mysqldump';
+                $command = 'pg_dump';
                 break;
             case 'fixtures_db':
                 $containerName = 'safebase-fixtures_db-1';
@@ -70,23 +71,23 @@ class DumpController extends AbstractController
 
         if ($command === 'mysqldump') {
             $command = sprintf(
-                'docker exec -t %s mysqldump -u %s -p%s --no-tablespaces -h %s %s > %s',
+                'docker exec -t %s mysqldump -u %s -p%s --no-tablespaces -h %s %s  > %s',
                 escapeshellarg($containerName),
-                escapeshellarg('user'), // Remplace par le bon utilisateur
-                escapeshellarg('password'), // Remplace par le bon mot de passe
-                escapeshellarg('localhost'), // Remplace par le bon hôte si nécessaire
-                escapeshellarg($name), // Nom de la base de données
+                escapeshellarg('user'),
+                escapeshellarg('password'),
+                escapeshellarg('localhost'),
+                escapeshellarg($name),
                 escapeshellarg($dumpFile)
             );
         } elseif ($command === 'pg_dump') {
             $command = sprintf(
                 'docker exec -t %s sh -c "PGPASSWORD=%s pg_dump -U %s -h %s -p %s %s" > %s',
                 escapeshellarg($containerName),
-                escapeshellarg('password'), // Remplace par le bon mot de passe
-                escapeshellarg('user'), // Remplace par le bon utilisateur
-                escapeshellarg($containerName), // Utilise le nom du conteneur comme hôte
-                escapeshellarg($port), // Port par défaut
-                escapeshellarg($name), // Nom de la base de données
+                escapeshellarg($password),
+                escapeshellarg('user'),
+                escapeshellarg($containerName),
+                escapeshellarg($port),
+                escapeshellarg($name),
                 escapeshellarg($dumpFile)
             );
         }
