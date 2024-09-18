@@ -8,7 +8,7 @@ Le projet vise à développer une solution complète de gestion de la sauvegarde
   - _Ajouter une connexion à une base de données_
 
 
-- [ ] **Automatisation des sauvegardes régulières**
+- [x] **Automatisation des sauvegardes régulières**
   - _Planifier et effectuer des sauvegardes périodiques des bases de données, en utilisant le standard cron et les utilitaires système de MySQL et postgres._
 
 
@@ -16,7 +16,7 @@ Le projet vise à développer une solution complète de gestion de la sauvegarde
   - _Conserver l’historique des différentes versions sauvegardées, avec des options pour choisir quelle version restaurer._
 
 
-- [ ] **Surveillance et alertes**
+- [x] **Surveillance et alertes**
   - _Générer des alertes en cas de problème lors des processus de sauvegarde ou de restauration._
 
 

@@ -26,6 +26,7 @@ class BackupLog
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+
     public function getId(): ?int
     {
         return $this->id;
