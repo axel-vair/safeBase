@@ -104,10 +104,10 @@ class BacklogController extends AbstractController
     private function getDatabases(ManagerRegistry $doctrine): array
     {
         $connection = $doctrine->getConnection();
-        $databases = $connection->fetchAllAssociative('SHOW DATABASES');
-        dump($databases);
+        // Use a query suitable for PostgreSQL
+        $databases = $connection->fetchAllAssociative('SELECT datname FROM pg_database WHERE datistemplate = false');
 
-        return array_column($databases, 'Database');
+        return array_column($databases, 'datname'); // Return just the database names
     }
 
     /**
@@ -130,8 +130,8 @@ class BacklogController extends AbstractController
         // Execute restore
         try {
             $connection = $doctrine->getConnection();
-            $connection->exec("SET NAMES 'utf8mb4'");
-
+            $connection->beginTransaction(); // Start transaction
+            $connection->exec("SET NAMES 'UTF8'");
             // Read file
             $sql = file_get_contents($filePath);
 
@@ -145,10 +145,10 @@ class BacklogController extends AbstractController
                 }
             }
 
-            $connection->commit();
+            $connection->commit(); // Commit transaction
             $this->addFlash('success', 'Restauration réussie !');
         } catch (\Exception $e) {
-            $connection->rollBack(); // End transaction
+            $connection->rollBack(); // Rollback transaction on error
             $this->addFlash('error', 'Erreur lors de la restauration : ' . $e->getMessage());
         }
 
