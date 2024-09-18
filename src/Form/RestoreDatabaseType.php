@@ -13,8 +13,9 @@ class RestoreDatabaseType extends AbstractType
     {
         $builder
             ->add('database', ChoiceType::class, [
-                'choices' => array_flip($options['databases']),
-                'label' => 'Choisissez la base de données',
+                'choices' => array_combine($options['databases'], $options['databases']),
+                'label' => 'Choisir la base de données',
+                'required' => true,
             ]);
     }
 

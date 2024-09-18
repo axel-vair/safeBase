@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\BackupLog;
 use App\Form\RestoreDatabaseType;
+use App\Service\RestoreService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,6 +13,13 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class BacklogController extends AbstractController
 {
+    private RestoreService $restoreService;
+
+    public function __construct(RestoreService $restoreService)
+    {
+        $this->restoreService = $restoreService;
+    }
+
     #[Route('/backlog', name: 'app_backups')]
     public function index(ManagerRegistry $doctrine): Response
     {
@@ -22,40 +30,6 @@ class BacklogController extends AbstractController
 
         return $this->render('backlog/index.html.twig', [
             'backlogs' => $backupLogs,
-        ]);
-    }
-
-    #[Route('/backlog/restore/{id}', name: 'app_backup_restore')]
-    public function restoreForm(BackupLog $backupLog, ManagerRegistry $doctrine, Request $request): Response
-    {
-        // Get backuplog file path
-        $filePath = $backupLog->getFilePath();
-
-        // Verifu if file existe
-        if (!file_exists($filePath)) {
-            $this->addFlash('error', 'Le fichier de sauvegarde n\'existe pas.');
-            return $this->redirectToRoute('app_backups');
-        }
-
-        // Get all databases that can be found
-        $databases = $this->getDatabases($doctrine);
-
-        // Create for to select in which database restore the sql file
-        $form = $this->createForm(RestoreDatabaseType::class, null, ['databases' => $databases]);
-
-        // Handle form
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
-            $databaseName = $data['database'];
-
-            // Call method to restore the file in chosen database
-            return $this->restore($backupLog, $doctrine, $databaseName);
-        }
-
-        return $this->render('backlog/restore.html.twig', [
-            'form' => $form->createView(),
-            'backupLog' => $backupLog,
         ]);
     }
 
@@ -70,7 +44,7 @@ class BacklogController extends AbstractController
 
         // if backuplog id doesnt exist then throw an error
         if (!$backupLog) {
-            throw $this->createNotFoundException('No backup log found for id '.$id);
+            throw $this->createNotFoundException('No backup log found for id ' . $id);
         }
 
         // stock in filetpath backlog path
@@ -96,30 +70,9 @@ class BacklogController extends AbstractController
         return $this->redirectToRoute('app_backups');
     }
 
-    /**
-     * Method used to get all databases
-     * @param ManagerRegistry $doctrine
-     * @return array
-     */
-    private function getDatabases(ManagerRegistry $doctrine): array
+    #[Route('/backlog/restore/{id}', name: 'app_backup_restore')]
+    public function restoreForm(BackupLog $backupLog, ManagerRegistry $doctrine, Request $request): Response
     {
-        $connection = $doctrine->getConnection();
-        // Use a query suitable for PostgreSQL
-        $databases = $connection->fetchAllAssociative('SELECT datname FROM pg_database WHERE datistemplate = false');
-
-        return array_column($databases, 'datname'); // Return just the database names
-    }
-
-    /**
-     * Method to restore sql file
-     * @param BackupLog $backupLog
-     * @param ManagerRegistry $doctrine
-     * @param string $databaseName
-     * @return Response
-     */
-    private function restore(BackupLog $backupLog, ManagerRegistry $doctrine, string $databaseName): Response
-    {
-        // Get file path
         $filePath = $backupLog->getFilePath();
 
         if (!file_exists($filePath)) {
@@ -127,31 +80,29 @@ class BacklogController extends AbstractController
             return $this->redirectToRoute('app_backups');
         }
 
-        // Execute restore
-        try {
-            $connection = $doctrine->getConnection();
-            $connection->beginTransaction(); // Start transaction
-            $connection->exec("SET NAMES 'UTF8'");
-            // Read file
-            $sql = file_get_contents($filePath);
+        $databases = ['backupinfo', 'fixtures_db', 'backup', 'backuptwo'];
 
-            // Split SQL commands by semicolon
-            $commands = explode(';', $sql);
+        $form = $this->createForm(RestoreDatabaseType::class, null, ['databases' => $databases]);
 
-            foreach ($commands as $command) {
-                $command = trim($command);
-                if (!empty($command)) {
-                    $connection->exec($command);
-                }
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $databaseName = $data['database'];
+
+            try {
+                $this->restoreService->restoreDatabase($filePath, $databaseName, $doctrine);
+                $this->addFlash('success', 'La base de données a été restaurée avec succès.');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Erreur lors de la restauration : ' . $e->getMessage());
             }
 
-            $connection->commit(); // Commit transaction
-            $this->addFlash('success', 'Restauration réussie !');
-        } catch (\Exception $e) {
-            $connection->rollBack(); // Rollback transaction on error
-            $this->addFlash('error', 'Erreur lors de la restauration : ' . $e->getMessage());
+            return $this->redirectToRoute('app_backups');
         }
 
-        return $this->redirectToRoute('app_backups');
+        return $this->render('backlog/restore.html.twig', [
+            'form' => $form->createView(),
+            'backupLog' => $backupLog,
+        ]);
     }
+
 }
