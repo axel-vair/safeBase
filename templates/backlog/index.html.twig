@@ -15,7 +15,7 @@
                         <th>Nom du Fichier</th>
                         <th>Chemin du Fichier</th>
                         <th>Date</th>
-                        <th>Action</th>
+                        <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -31,7 +31,13 @@
                                 </a>
                             </td>
                             <td>{{ log.createdAt|date('d-m-Y H:i:s') }}</td>
-                            <td><a href="{{ path('app_backup_restore', { 'id': log.id }) }}" class="btn btn-sm btn-info">Restaurer</a></td>                        </tr>
+                            <td>
+                                <a href="{{ path('app_backup_restore', { 'id': log.id }) }}" class="btn btn-sm btn-info">Restaurer</a>
+                                <a href="{{ path('app_backup_delete', {'id': log.id}) }}" class="btn btn-sm btn-danger">Supprimer</a>
+
+
+                            </td>
+                        </tr>
                     {% else %}
                         <tr>
                             <td colspan="5">Aucun log de sauvegarde trouvé.</td>

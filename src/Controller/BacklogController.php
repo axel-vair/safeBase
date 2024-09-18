@@ -59,6 +59,43 @@ class BacklogController extends AbstractController
         ]);
     }
 
+    #[Route('/backlog/delete/{id}', name: 'app_backup_delete')]
+    public function delete(int $id, ManagerRegistry $doctrine): Response
+    {
+        // return default entity manager (backupinfo)
+        $entityManager = $doctrine->getManager();
+
+        // get the backuplog by id
+        $backupLog = $entityManager->getRepository(BackupLog::class)->find($id);
+
+        // if backuplog id doesnt exist then throw an error
+        if (!$backupLog) {
+            throw $this->createNotFoundException('No backup log found for id '.$id);
+        }
+
+        // stock in filetpath backlog path
+        $filePath = $backupLog->getFilePath();
+
+        // if file exists then delete the file
+        if (file_exists($filePath)) {
+            unlink($filePath);
+            $entityManager->remove($backupLog);
+            $entityManager->flush();
+        }
+
+        if (!$entityManager->contains($backupLog)) {
+            $entityManager->persist($backupLog);
+            $entityManager->flush();
+        }
+
+        $entityManager->remove($backupLog);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Le fichier de sauvegarde a été supprimé avec succès.');
+
+        return $this->redirectToRoute('app_backups');
+    }
+
     /**
      * Method used to get all databases
      * @param ManagerRegistry $doctrine
@@ -117,4 +154,4 @@ class BacklogController extends AbstractController
 
         return $this->redirectToRoute('app_backups');
     }
-    }
+}
