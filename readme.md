@@ -24,7 +24,7 @@ Le projet vise à développer une solution complète de gestion de la sauvegarde
   - _Proposer une interface simple pour permettre aux utilisateurs de gérer facilement les processus de sauvegarde et de restauration._
 
 
-- [ ] **Intégrations de tests**
+- [x] **Intégrations de tests**
   - _Écrire des tests fonctionnels permettant de s’assurer du bon fonctionnement de l’API, ainsi que la bonne exécution des sauvegardes et restaurations._
 
 
