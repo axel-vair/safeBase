@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20240913115830 extends AbstractMigration
+final class Version20240920102428 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -21,9 +21,11 @@ final class Version20240913115830 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE SEQUENCE Baguette_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
+        $this->addSql('CREATE SEQUENCE Cron_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE SEQUENCE Personnage_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE SEQUENCE backup_log_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE TABLE Baguette (id INT NOT NULL, Bois VARCHAR(255) NOT NULL, Coeur VARCHAR(255) NOT NULL, Taille DOUBLE PRECISION NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE Cron (id INT NOT NULL, backupFrequency VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE TABLE Personnage (id INT NOT NULL, Nom VARCHAR(255) NOT NULL, Prenom VARCHAR(255) NOT NULL, Age INT NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE TABLE backup_log (id INT NOT NULL, databaseName VARCHAR(255) NOT NULL, fileName VARCHAR(255) NOT NULL, filePath VARCHAR(255) NOT NULL, createdAt TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
         $this->addSql('COMMENT ON COLUMN backup_log.createdAt IS \'(DC2Type:datetime_immutable)\'');
@@ -49,9 +51,11 @@ final class Version20240913115830 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE SCHEMA public');
         $this->addSql('DROP SEQUENCE Baguette_id_seq CASCADE');
+        $this->addSql('DROP SEQUENCE Cron_id_seq CASCADE');
         $this->addSql('DROP SEQUENCE Personnage_id_seq CASCADE');
         $this->addSql('DROP SEQUENCE backup_log_id_seq CASCADE');
         $this->addSql('DROP TABLE Baguette');
+        $this->addSql('DROP TABLE Cron');
         $this->addSql('DROP TABLE Personnage');
         $this->addSql('DROP TABLE backup_log');
         $this->addSql('DROP TABLE messenger_messages');

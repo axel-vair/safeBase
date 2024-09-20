@@ -36,7 +36,7 @@
                 <ul class="nav nav-pills nav-sidebar flex-column">
                     <li class="nav-item">
                         <a href="{{ path('app_backups') }}" class="nav-link">
-                            <i class="nav-icon fas fa-users"></i>
+                            <i class="nav-icon fas fa-tachometer-alt"></i>
                             <p>
                                 Backups
                             </p>
@@ -45,11 +45,39 @@
 
                     <li class="nav-item">
                         <a href="{{ path('app_default') }}" class="nav-link">
-                            <i class="nav-icon fas fa-eye"></i>
+                            <i class="nav-icon fas fa-database"></i>
                             <p>
                                 Base de données
                             </p>
                         </a>
+                    </li>
+
+                    <li id="cron" class="nav-item">
+                        <a href="#" class="nav-link" data-action="general#openCron">
+                            <i class="nav-icon fas fa-clock"></i>
+                            <p>
+                                Cron
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li>
+                                <a href="{{ path('app_cron') }}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Ajouter un Cron</p>
+                                </a>
+
+                            </li>
+
+
+                            <li>
+                                <a href="{{ path('app_cron_manage') }}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Gérer les Crons</p>
+                                </a>
+
+                            </li>
+                        </ul>
+
                     </li>
 
                 </ul>
@@ -61,7 +89,7 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                            <h1 class="m-0">{{ block('title') }}</h1>
+                        <h1 class="m-0">{{ block('title') }}</h1>
                     </div>
                     <div class="col-sm-6">
                         {% block breadcrumb %}
@@ -77,14 +105,6 @@
         <section class="content">
             <div class="container-fluid">
                 {% block body %}
-
-                    {% for type, messages in app.flashes %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ type }}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endfor %}
                 {% endblock %}
             </div>
         </section>
