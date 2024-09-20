@@ -22,4 +22,9 @@ export default class extends Controller {
 
         }
     }
+
+    openCron() {
+        const cron = document.getElementById('cron')
+        cron.classList.toggle('menu-open')
+    }
 }

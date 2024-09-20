@@ -27,7 +27,13 @@
                     <tbody>
                     <tr>
                         <td><a href="{{ path('app_dump', {'name': default.name}) }}">{{ default.name }}</a></td>
-                        <td>{{ default.isConnected ? '🟢 Connectée' : '🔴 Non Connectée' }}</td>
+                        <td>{{ default.isConnected ? "<span>
+            <i class='fas fa-check-circle mr-1'></i>
+            Connectée
+        </span>" : "<span>
+            <i class='fas fa-times-circle mr-1'></i>
+        </span> Non Connectée" }}
+                        </td>
                         <td>{{ default.tables|join(', ') }}</td>
                         <td>
                             <ul>
@@ -40,12 +46,18 @@
                             </ul>
                         </td>
                         <td>
-                            <a href="{{ path('app_dump', {'name': default.name}) }}" class="btn btn-sm btn-info">Faire un backup</a>
+                            <a href="{{ path('app_dump', {'name': default.name}) }}" class="btn btn-sm btn-info">Faire
+                                un backup</a>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="{{ path('app_dump', {'name': fixtures_db.name}) }}">{{ fixtures_db.name }}</a></td>
-                        <td>{{ fixtures_db.isConnected ? '🟢 Connectée' : '🔴 Non Connectée' }}</td>
+                        <td>{{ fixtures_db.isConnected ? "<span>
+            <i class='fas fa-check-circle mr-1'></i>
+            Connectée
+        </span>" : "<span>
+            <i class='fas fa-times-circle'></i>
+        </span> Non Connectée" }}</td>
                         <td>{{ fixtures_db.tables|join(', ') }}</td>
                         <td>
                             <ul>
@@ -58,12 +70,18 @@
                             </ul>
                         </td>
                         <td>
-                            <a href="{{ path('app_dump', {'name': fixtures_db.name}) }}" class="btn btn-sm btn-info">Faire un backup</a>
+                            <a href="{{ path('app_dump', {'name': fixtures_db.name}) }}" class="btn btn-sm btn-info">Faire
+                                un backup</a>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="{{ path('app_dump', {'name': backup.name}) }}">{{ backup.name }}</a></td>
-                        <td>{{ backup.isConnected ? '🟢 Connectée' : '🔴 Non Connectée' }}</td>
+                        <td>{{ backup.isConnected ? "<span>
+            <i class='fas fa-check-circle'></i>
+            Connectée
+        </span>" : "<span>
+            <i class='fas fa-times-circle mr-1'></i>
+        </span> Non Connectée" }}</td>
                         <td>{{ backup.tables|join(', ') }}</td>
                         <td>
                             <ul>
@@ -76,12 +94,18 @@
                             </ul>
                         </td>
                         <td>
-                            <a href="{{ path('app_dump', {'name': backup.name}) }}" class="btn btn-sm btn-info">Faire un backup</a>
+                            <a href="{{ path('app_dump', {'name': backup.name}) }}" class="btn btn-sm btn-info">Faire un
+                                backup</a>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="{{ path('app_dump', {'name': backuptwo.name}) }}">{{ backuptwo.name }}</a></td>
-                        <td>{{ backuptwo.isConnected ? '🟢 Connectée' : '🔴 Non Connectée' }}</td>
+                        <td>{{ backuptwo.isConnected ? "<span>
+            <i class='fas fa-check-circle mr-1'></i>
+            Connectée
+        </span>" : "<span>
+            <i class='fas fa-times-circle mr-1'></i>
+        </span> Non Connectée" }}</td>
                         <td>{{ backuptwo.tables|join(', ') }}</td>
                         <td>
                             <ul>
@@ -94,7 +118,8 @@
                             </ul>
                         </td>
                         <td>
-                            <a href="{{ path('app_dump', {'name': backuptwo.name}) }}" class="btn btn-sm btn-info">Faire un backup</a>
+                            <a href="{{ path('app_dump', {'name': backuptwo.name}) }}" class="btn btn-sm btn-info">Faire
+                                un backup</a>
                         </td>
                     </tr>
                     </tbody>
