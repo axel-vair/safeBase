@@ -16,27 +16,26 @@ use Symfony\Component\Routing\Annotation\Route;
 class CronController extends AbstractController
 {
     #[Route('/cron', name: 'app_cron')]
-    public function index(Request $request, CronRepository $cronRepository, EntityManagerInterface $entityManager): Response
+    public function index(Request $request, EntityManagerInterface $entityManager): Response
     {
-        // Créer une nouvelle configuration de cron
+        // Create new cron config
         $cronConfig = new Cron();
 
-        // Créer le formulaire
+        // Create form
         $form = $this->createForm(CronType::class, $cronConfig);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Enregistrer la configuration dans la base de données
+            // Save config in the database
             $entityManager->persist($cronConfig);
             $entityManager->flush();
 
-            // Mettre à jour le crontab avec la nouvelle fréquence
+            // Update crontab with the new frequency
             $this->updateCrontab($cronConfig->getBackupFrequency());
 
-            // Exécuter le script de sauvegarde
+            // Execute the script
             $this->runBackupScript();
 
-            // Afficher un message de succès
             $this->addFlash('success', 'Configuration du cron enregistrée avec succès et sauvegarde lancée.');
             return $this->redirectToRoute('app_cron');
         }
@@ -49,15 +48,14 @@ class CronController extends AbstractController
     #[Route('/cron/manage', name: 'app_cron_manage')]
     public function manage(CronRepository $cronRepository): Response
     {
-        // Récupérer toutes les configurations de cron
+        // Get all the cron configs
         $cronConfigs = $cronRepository->findAll();
 
-        // Préparer les données pour la vue
         return $this->render('cron/manage.html.twig', [
             'cronJobs' => array_map(function(Cron $config) {
                 return [
                     'id' => $config->getId(),
-                    'command' => $config->getBackupFrequency(), // Ou toute autre méthode pour obtenir la commande
+                    'command' => $config->getBackupFrequency(),
                 ];
             }, $cronConfigs),
         ]);
@@ -66,36 +64,34 @@ class CronController extends AbstractController
     #[Route('/cron/delete/{id}', name: 'app_cron_delete')]
     public function deleteCronJob(int $id, CronRepository $cronRepository, EntityManagerInterface $entityManager): Response
     {
-        // Récupérer la tâche cron correspondante dans la base de données
+        // Get cron task in the database
         $cronConfig = $cronRepository->find($id);
 
         if ($cronConfig) {
             try {
-                // Suppression de l'entrée dans la base de données
+                // Delete cron task in database
                 $entityManager->remove($cronConfig);
                 $entityManager->flush();
 
-                // Mettre à jour le crontab en supprimant la tâche correspondante
+                // Update the crontab
                 $this->removeFromCrontab($cronConfig->getBackupFrequency());
 
-                // Afficher un message de succès
                 $this->addFlash('success', 'Tâche cron supprimée avec succès.');
             } catch (\Exception $e) {
                 error_log('Erreur lors de la suppression : ' . $e->getMessage());
-                // Afficher un message d'erreur à l'utilisateur
                 $this->addFlash('error', 'Erreur lors de la suppression de la tâche cron.');
             }
         } else {
-            // Afficher un message d'erreur si aucune tâche n'est trouvée
+            // Display error message if no task found
             $this->addFlash('error', 'Aucune tâche trouvée pour cet identifiant.');
         }
 
-        return $this->redirectToRoute('app_cron_manage'); // Rediriger vers la page de gestion des crons
+        return $this->redirectToRoute('app_cron_manage');
     }
 
     private function updateCrontab(string $frequency): void
     {
-        // Définir la commande cron selon la fréquence
+        // Define the frequency
         switch ($frequency) {
             case 'daily':
                 $cronCommand = "37 10 * * * /bin/bash /Users/axel/Documents/Lab/Workspace/Bachelor/safebase/backup_databases.sh >> /Users/axel/Documents/Lab/Workspace/Bachelor/safebase/var/cron/cron_backup.log 2>&1";
@@ -107,21 +103,21 @@ class CronController extends AbstractController
                 $cronCommand = "37 10 1 * * /bin/bash /Users/axel/Documents/Lab/Workspace/Bachelor/safebase/backup_databases.sh >> /Users/axel/Documents/Lab/Workspace/Bachelor/safebase/var/cron/cron_backup.log 2>&1";
                 break;
             default:
-                return; // Sortir si aucune fréquence valide n'est trouvée.
+                return;
         }
 
-        // Écrire ou mettre à jour le crontab si nécessaire
+        // Write or update crontab if necessary
         if ($cronCommand) {
-            // Récupérer l'actuel crontab
+            // Get actual crontab
             $currentCrontab = shell_exec('crontab -l');
 
-            // Vérifier si la commande existe déjà pour éviter les doublons
+            // Verify if the command exists to avoid double
             if (strpos($currentCrontab, trim($cronCommand)) === false) {
                 file_put_contents('/tmp/crontab.txt', "$currentCrontab\n$cronCommand");
 
                 exec('crontab /tmp/crontab.txt', $output, $returnVar);
 
-                unlink('/tmp/crontab.txt'); // Supprimer le fichier temporaire
+                unlink('/tmp/crontab.txt'); // Delete tmp file
 
                 if ($returnVar !== 0) {
                     error_log('Erreur lors de l\'exécution de crontab : ' . implode("\n", $output));
@@ -132,7 +128,7 @@ class CronController extends AbstractController
 
     private function removeFromCrontab(string $frequency): void
     {
-        // Définir la commande cron selon la fréquence pour suppression
+        // Defin the command to use depends to the frenquency
         switch ($frequency) {
             case 'daily':
                 $cronCommand = "37 10 * * * /bin/bash /Users/axel/Documents/Lab/Workspace/Bachelor/safebase/backup_databases.sh >> /Users/axel/Documents/Lab/Workspace/Bachelor/safebase/var/cron/cron_backup.log 2>&1";
@@ -144,19 +140,19 @@ class CronController extends AbstractController
                 $cronCommand = "37 10 1 * * /bin/bash /Users/axel/Documents/Lab/Workspace/Bachelor/safebase/backup_databases.sh >> /Users/axel/Documents/Lab/Workspace/Bachelor/safebase/var/cron/cron_backup.log 2>&1";
                 break;
             default:
-                return; // Sortir si aucune fréquence valide n'est trouvée.
+                return;
         }
 
-        // Récupérer l'actuel crontab et supprimer la commande correspondante
+        // Get actual crontab and delete command used
         if ($currentCrontab = shell_exec('crontab -l')) {
-            // Filtrer pour supprimer le job spécifié
+            // Filter to delete the good crontab
             $updatedCrontab = preg_replace("/^.*" . preg_quote(trim($cronCommand), '/') . ".*\$/m", '', trim($currentCrontab));
 
             file_put_contents('/tmp/crontab.txt', trim($updatedCrontab));
 
             exec('crontab /tmp/crontab.txt', $output, $returnVar);
 
-            unlink('/tmp/crontab.txt'); // Supprimer le fichier temporaire
+            unlink('/tmp/crontab.txt'); // Delete tmp file
 
             if ($returnVar !== 0) {
                 error_log('Erreur lors de l\'exécution de crontab : ' . implode("\n", $output));
@@ -167,20 +163,17 @@ class CronController extends AbstractController
     private function runBackupScript(): void
     {
         try {
-            // Récupérer le chemin du script de sauvegarde
+            // Get script path
             $scriptPath = $this->getParameter('kernel.project_dir') . '/backup_databases.sh';
 
-            // Exécuter le script avec Process
+            // Execute the script with Process
             (new Process(['bash', $scriptPath]))->mustRun();
 
-            // Afficher un message de succès si tout va bien
             $this->addFlash('success', 'Le script de sauvegarde a été exécuté avec succès.');
 
         } catch (ProcessFailedException | \Exception $exception) {
-            // Afficher un message d'erreur en cas d'échec
             error_log('Erreur lors du lancement du script de sauvegarde : ' . htmlspecialchars($exception->getMessage()));
 
-            // Afficher un message d'erreur à l'utilisateur
             $this->addFlash('error', 'Erreur lors du lancement du script de sauvegarde : ' . htmlspecialchars($exception->getMessage()));
         }
     }

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\BackupLog;
 use App\Form\RestoreDatabaseType;
+use App\Repository\BackupLogRepository;
 use App\Service\RestoreService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -34,13 +35,13 @@ class BacklogController extends AbstractController
     }
 
     #[Route('/backlog/delete/{id}', name: 'app_backup_delete')]
-    public function delete(int $id, ManagerRegistry $doctrine): Response
+    public function delete(int $id, ManagerRegistry $doctrine, BackupLogRepository $backupLogRepository): Response
     {
         // return default entity manager (backupinfo)
         $entityManager = $doctrine->getManager();
 
         // get the backuplog by id
-        $backupLog = $entityManager->getRepository(BackupLog::class)->find($id);
+        $backupLog = $backupLogRepository->find($id);
 
         // if backuplog id doesnt exist then throw an error
         if (!$backupLog) {
