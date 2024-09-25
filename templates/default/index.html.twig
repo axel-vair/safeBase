@@ -26,18 +26,18 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td><a href="{{ path('app_dump', {'name': default.name}) }}">{{ default.name }}</a></td>
-                        <td>{{ default.isConnected ? "<span>
+                        <td><a href="{{ path('app_dump', {'name': potterDb.name}) }}">{{ potterDb.name }}</a></td>
+                        <td>{{ potterDb.isConnected ? "<span>
             <i class='fas fa-check-circle mr-1'></i>
             Connectée
         </span>" : "<span>
             <i class='fas fa-times-circle mr-1'></i>
         </span> Non Connectée" }}
                         </td>
-                        <td>{{ default.tables|join(', ') }}</td>
+                        <td>{{ potterDb.tables|join(', ') }}</td>
                         <td>
                             <ul>
-                                {% for tableName, tableColumns in default.columns %}
+                                {% for tableName, tableColumns in potterDb.columns %}
                                     <li>
                                         <strong>{{ tableName }}:</strong>
                                         {{ tableColumns|join(', ') }}
@@ -46,46 +46,23 @@
                             </ul>
                         </td>
                         <td>
-                            <a href="{{ path('app_dump', {'name': default.name}) }}" class="btn btn-sm btn-info">Faire
+                            <a href="{{ path('app_dump', {'name': potterDb.name}) }}" class="btn btn-sm btn-info">Faire
                                 un backup</a>
                         </td>
                     </tr>
+
                     <tr>
-                        <td><a href="{{ path('app_dump', {'name': fixtures_db.name}) }}">{{ fixtures_db.name }}</a></td>
-                        <td>{{ fixtures_db.isConnected ? "<span>
-            <i class='fas fa-check-circle mr-1'></i>
-            Connectée
-        </span>" : "<span>
-            <i class='fas fa-times-circle'></i>
-        </span> Non Connectée" }}</td>
-                        <td>{{ fixtures_db.tables|join(', ') }}</td>
-                        <td>
-                            <ul>
-                                {% for tableName, tableColumns in fixtures_db.columns %}
-                                    <li>
-                                        <strong>{{ tableName }}:</strong>
-                                        {{ tableColumns|join(', ') }}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </td>
-                        <td>
-                            <a href="{{ path('app_dump', {'name': fixtures_db.name}) }}" class="btn btn-sm btn-info">Faire
-                                un backup</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><a href="{{ path('app_dump', {'name': backup.name}) }}">{{ backup.name }}</a></td>
-                        <td>{{ backup.isConnected ? "<span>
+                        <td><a href="{{ path('app_dump', {'name': backupDb.name}) }}">{{ backupDb.name }}</a></td>
+                        <td>{{ backupDb.isConnected ? "<span>
             <i class='fas fa-check-circle'></i>
             Connectée
         </span>" : "<span>
             <i class='fas fa-times-circle mr-1'></i>
         </span> Non Connectée" }}</td>
-                        <td>{{ backup.tables|join(', ') }}</td>
+                        <td>{{ backupDb.tables|join(', ') }}</td>
                         <td>
                             <ul>
-                                {% for tableName, tableColumns in backup.columns %}
+                                {% for tableName, tableColumns in backupDb.columns %}
                                     <li>
                                         <strong>{{ tableName }}:</strong>
                                         {{ tableColumns|join(', ') }}
@@ -94,32 +71,8 @@
                             </ul>
                         </td>
                         <td>
-                            <a href="{{ path('app_dump', {'name': backup.name}) }}" class="btn btn-sm btn-info">Faire un
+                            <a href="{{ path('app_dump', {'name': backupDb.name}) }}" class="btn btn-sm btn-info">Faire un
                                 backup</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><a href="{{ path('app_dump', {'name': backuptwo.name}) }}">{{ backuptwo.name }}</a></td>
-                        <td>{{ backuptwo.isConnected ? "<span>
-            <i class='fas fa-check-circle mr-1'></i>
-            Connectée
-        </span>" : "<span>
-            <i class='fas fa-times-circle mr-1'></i>
-        </span> Non Connectée" }}</td>
-                        <td>{{ backuptwo.tables|join(', ') }}</td>
-                        <td>
-                            <ul>
-                                {% for tableName, tableColumns in backuptwo.columns %}
-                                    <li>
-                                        <strong>{{ tableName }}:</strong>
-                                        {{ tableColumns|join(', ') }}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </td>
-                        <td>
-                            <a href="{{ path('app_dump', {'name': backuptwo.name}) }}" class="btn btn-sm btn-info">Faire
-                                un backup</a>
                         </td>
                     </tr>
                     </tbody>

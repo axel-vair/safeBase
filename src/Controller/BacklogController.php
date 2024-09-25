@@ -25,7 +25,7 @@ class BacklogController extends AbstractController
     public function index(ManagerRegistry $doctrine): Response
     {
         // Get logs
-        $backupInfoEntityManager = $doctrine->getManager('backupinfo');
+        $backupInfoEntityManager = $doctrine->getManager('default');
         $backupLogRepository = $backupInfoEntityManager->getRepository(BackupLog::class);
         $backupLogs = $backupLogRepository->findAll();
 
@@ -37,7 +37,7 @@ class BacklogController extends AbstractController
     #[Route('/backlog/delete/{id}', name: 'app_backup_delete')]
     public function delete(int $id, ManagerRegistry $doctrine, BackupLogRepository $backupLogRepository): Response
     {
-        // return default entity manager (backupinfo)
+        // return default entity manager (potter)
         $entityManager = $doctrine->getManager();
 
         // get the backuplog by id
@@ -81,7 +81,7 @@ class BacklogController extends AbstractController
             return $this->redirectToRoute('app_backups');
         }
 
-        $databases = ['backupinfo', 'fixtures_db', 'backup', 'backuptwo'];
+        $databases = ['potter', 'backup'];
 
         $form = $this->createForm(RestoreDatabaseType::class, null, ['databases' => $databases]);
 

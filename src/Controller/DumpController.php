@@ -34,7 +34,7 @@ class DumpController extends AbstractController
 
     private function dumpBackupLog(ManagerRegistry $doctrine, string $name, string $dumpFile): void
     {
-        $backupInfoEntityManager = $doctrine->getManager('backupinfo');
+        $potterManager = $doctrine->getManager('default');
 
         $backupLog = new BackupLog();
         $backupLog->setDatabaseName($name);
@@ -45,7 +45,7 @@ class DumpController extends AbstractController
 
         $backupLog->setCreatedAt($dateTime);
 
-        $backupInfoEntityManager->persist($backupLog);
-        $backupInfoEntityManager->flush();
+        $potterManager->persist($backupLog);
+        $potterManager->flush();
     }
 }

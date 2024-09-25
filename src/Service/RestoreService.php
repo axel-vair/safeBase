@@ -12,24 +12,12 @@ class RestoreService
     {
         // Déterminer le type de base de données et le conteneur Docker
         switch ($databaseName) {
-            case 'backupinfo':
+            case 'potter':
                 $containerName = "safebase-database-1";
                 $command = $this->buildPgRestoreCommand($containerName, $databaseName, $filePath);
                 break;
             case 'backup':
                 $containerName = 'safebase-backup-1';
-                $command = $this->buildPgRestoreCommand($containerName, $databaseName, $filePath);
-                break;
-            case 'backuptwo':
-                $containerName = 'safebase-backuptwo-1';
-                $command = $this->buildPgRestoreCommand($containerName, $databaseName, $filePath);
-                break;
-            case 'fixtures_db':
-                $containerName = 'safebase-fixtures_db-1';
-                $command = $this->buildMysqlRestoreCommand($containerName, $databaseName, $filePath);
-                break;
-            case 'safebase':
-                $containerName = 'safebase-safebase-1';
                 $command = $this->buildPgRestoreCommand($containerName, $databaseName, $filePath);
                 break;
             default:
@@ -57,13 +45,13 @@ class RestoreService
         );
     }
 
-    private function buildMysqlRestoreCommand(string $containerName, string $databaseName, string $filePath): string
-    {
-        return sprintf(
-            'docker exec -i %s mysql -u user -ppassword %s < %s',
-            escapeshellarg($containerName),
-            escapeshellarg($databaseName),
-            escapeshellarg($filePath)
-        );
-    }
+//    private function buildMysqlRestoreCommand(string $containerName, string $databaseName, string $filePath): string
+//    {
+//        return sprintf(
+//            'docker exec -i %s mysql -u user -ppassword %s < %s',
+//            escapeshellarg($containerName),
+//            escapeshellarg($databaseName),
+//            escapeshellarg($filePath)
+//        );
+//    }
 }
