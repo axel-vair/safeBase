@@ -3,26 +3,13 @@ doctrine:
         default_connection: default
         connections:
             default:
-                url: '%env(BACKUPINFO_DATABASE_URL)%'
-                profiling_collect_backtrace: '%kernel.debug%'
-                use_savepoints: true
-            fixtures_db:
-                url: '%env(FIXTURES_DATABASE_URL)%'
+                url: '%env(POTTER_DATABASE_URL)%'
                 profiling_collect_backtrace: '%kernel.debug%'
                 use_savepoints: true
             backup:
                 url: '%env(resolve:BACKUP_DATABASE_URL)%'
                 profiling_collect_backtrace: '%kernel.debug%'
                 use_savepoints: true
-            backuptwo:
-                url: '%env(resolve:BACKUPTWO_DATABASE_URL)%'
-                profiling_collect_backtrace: '%kernel.debug%'
-                use_savepoints: true
-            backupinfo:  # Ajoutez cette ligne pour la connexion backupinfo
-                url: '%env(BACKUPINFO_DATABASE_URL)%'
-                profiling_collect_backtrace: '%kernel.debug%'
-                use_savepoints: true
-
     orm:
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true
@@ -36,17 +23,8 @@ doctrine:
                         dir: '%kernel.project_dir%/src/Entity'
                         prefix: 'App\Entity'
                         alias: App
-            fixtures_db:
-                connection: fixtures_db
-                mappings:
-                    App:
-                        is_bundle: false
-                        type: attribute
-                        dir: '%kernel.project_dir%/src/Entity'
-                        prefix: 'App\Entity'
-                        alias: App
-            backupinfo:  # Ajoutez un gestionnaire d'entités pour backupinfo
-                connection: backupinfo
+            backup:
+                connection: backup
                 mappings:
                     App:
                         is_bundle: false

@@ -28,21 +28,11 @@ class DumpService
 
         // Dynamically determine the database type
         switch ($name) {
-            case 'backupinfo':
+            case 'potter':
                 $containerName = 'safebase-database-1';
-                $command = 'pg_dump';
-                break;
-            case 'fixtures_db':
-                $containerName = 'safebase-fixtures_db-1';
-                $command = 'mysqldump';
                 break;
             case 'backup':
                 $containerName = 'safebase-backup-1';
-                $command = 'pg_dump';
-                break;
-            case 'backuptwo':
-                $containerName = 'safebase-backuptwo-1';
-                $command = 'pg_dump';
                 break;
             default:
                 if ($flashCallback) {
@@ -51,18 +41,18 @@ class DumpService
                 return ''; // Return an empty string or handle it as needed
         }
 
-        // Build the command for mysqldump or pg_dump
-        if ($command === 'mysqldump') {
-            $command = sprintf(
-                'docker exec -t %s mysqldump -u %s -p%s --no-tablespaces -h %s %s > %s',
-                escapeshellarg($containerName),
-                escapeshellarg('user'),
-                escapeshellarg('password'),
-                escapeshellarg('localhost'),
-                escapeshellarg($name),
-                escapeshellarg($dumpFile)
-            );
-        } elseif ($command === 'pg_dump') {
+//        // Build the command for mysqldump or pg_dump
+//        if ($command === 'mysqldump') {
+//            $command = sprintf(
+//                'docker exec -t %s mysqldump -u %s -p%s --no-tablespaces -h %s %s > %s',
+//                escapeshellarg($containerName),
+//                escapeshellarg('user'),
+//                escapeshellarg('password'),
+//                escapeshellarg('localhost'),
+//                escapeshellarg($name),
+//                escapeshellarg($dumpFile)
+//            );
+//        } elseif ($command === 'pg_dump') {
             $command = sprintf(
                 'docker exec -t %s sh -c "PGPASSWORD=%s pg_dump -U %s -h %s -p %s %s" > %s',
                 escapeshellarg($containerName),
@@ -73,7 +63,7 @@ class DumpService
                 escapeshellarg($name),
                 escapeshellarg($dumpFile)
             );
-        }
+
 
         // Execute the command
         exec($command, $output, $returnVar);

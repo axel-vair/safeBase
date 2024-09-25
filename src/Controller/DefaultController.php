@@ -19,27 +19,17 @@ class DefaultController extends AbstractController
     public function index(ManagerRegistry $doctrine): Response
     {
 
-        // Connection to the database Backup
+        // Connection to the database Potter
+        $potterConnection = $doctrine->getConnection('default');
+        $potterDb = $this->getDatabaseInfo($potterConnection);
+
+        // Connection to the backup database
         $backupConnection = $doctrine->getConnection('backup');
-        $backupInfo = $this->getDatabaseInfo($backupConnection);
-
-        // Connection to the database Backup 2
-        $backuptwoConnection = $doctrine->getConnection('backuptwo');
-        $backuptwoInfo = $this->getDatabaseInfo($backuptwoConnection);
-
-        // Connection to the fixtures database
-        $fixturesDbConnection = $doctrine->getConnection('fixtures_db');
-        $fixturesDbInfo = $this->getDatabaseInfo($fixturesDbConnection);
-
-        // Connection to the backupinfo database
-        $backupinfoConnection = $doctrine->getConnection('default');
-        $backupinfoInfo = $this->getDatabaseInfo($backupinfoConnection);
+        $backupDb = $this->getDatabaseInfo($backupConnection);
 
         return $this->render('default/index.html.twig', [
-            'default' => $backupinfoInfo,
-            'backup' => $backupInfo,
-            'backuptwo' => $backuptwoInfo,
-            'fixtures_db' => $fixturesDbInfo,
+            'potterDb' => $potterDb,
+            'backupDb' => $backupDb,
         ]);
     }
     /**
