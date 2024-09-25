@@ -8,24 +8,30 @@ use Symfony\Component\Process\Process;
 
 class RestoreService
 {
-    public function restoreDatabase(string $filePath, string $databaseName, ManagerRegistry $doctrine): bool
+    public function restoreDatabase(string $filePath, string $databaseName): bool
     {
-        // Déterminer le type de base de données et le conteneur Docker
+        // Déterminer le conteneur en fonction du nom de la base de données
         switch ($databaseName) {
             case 'potter':
                 $containerName = "safebase-database-1";
-                $command = $this->buildPgRestoreCommand($containerName, $databaseName, $filePath);
                 break;
             case 'backup':
                 $containerName = 'safebase-backup-1';
-                $command = $this->buildPgRestoreCommand($containerName, $databaseName, $filePath);
                 break;
             default:
                 throw new \InvalidArgumentException("Base de données non reconnue : $databaseName");
         }
 
+        // Commande pour restaurer la base de données
+        $command = [
+            '/usr/local/bin/docker/', 'exec', '-i', $containerName, 'psql', '-U', 'user', '-d', $databaseName
+        ];
+
+        // Créer un processus pour exécuter la commande
+        $process = new Process($command);
+        $process->setInput(file_get_contents($filePath));
+
         // Exécuter la commande
-        $process = Process::fromShellCommandline($command);
         $process->run();
 
         // Vérifier si la commande a réussi
@@ -35,23 +41,4 @@ class RestoreService
 
         return true;
     }
-    private function buildPgRestoreCommand(string $containerName, string $databaseName, string $filePath): string
-    {
-        return sprintf(
-            'docker exec -i %s psql -U user -d %s < %s',
-            escapeshellarg($containerName),
-            escapeshellarg($databaseName),
-            escapeshellarg($filePath)
-        );
-    }
-
-//    private function buildMysqlRestoreCommand(string $containerName, string $databaseName, string $filePath): string
-//    {
-//        return sprintf(
-//            'docker exec -i %s mysql -u user -ppassword %s < %s',
-//            escapeshellarg($containerName),
-//            escapeshellarg($databaseName),
-//            escapeshellarg($filePath)
-//        );
-//    }
 }

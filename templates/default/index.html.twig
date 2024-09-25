@@ -1,5 +1,7 @@
 {% extends 'base.html.twig' %}
+
 {% block title %}Informations{% endblock %}
+
 {% block body %}
     {% for label, messages in app.flashes %}
         {% for message in messages %}
@@ -8,16 +10,18 @@
             </div>
         {% endfor %}
     {% endfor %}
+
     <div class="card" data-controller="general">
         <div class="card-header border-transparent">
             <h3 class="card-title">Informations</h3>
         </div>
+
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table m-0">
                     <thead>
                     <tr>
-                        <th>Database</th>
+                        <th>Base de données</th>
                         <th>Statut</th>
                         <th>Tables</th>
                         <th>Colonnes</th>
@@ -25,59 +29,62 @@
                     </tr>
                     </thead>
                     <tbody>
+                    <!-- Informations sur la base de données Potter -->
                     <tr>
-                        <td><a href="{{ path('app_dump', {'name': potterDb.name}) }}">{{ potterDb.name }}</a></td>
-                        <td>{{ potterDb.isConnected ? "<span>
-            <i class='fas fa-check-circle mr-1'></i>
-            Connectée
-        </span>" : "<span>
-            <i class='fas fa-times-circle mr-1'></i>
-        </span> Non Connectée" }}
+                        <td>
+                            {% if potterDb.name %}
+                                <a href="{{ path('app_dump', {'name': potterDb.name}) }}">{{ potterDb.name }}</a>
+                            {% else %}
+                                Nom de la base de données non défini
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ potterDb.isConnected ? "<span><i class='fas fa-check-circle mr-1'></i> Connectée</span>" : "<span><i class='fas fa-times-circle mr-1'></i> Non Connectée</span>" }}
                         </td>
                         <td>{{ potterDb.tables|join(', ') }}</td>
                         <td>
                             <ul>
                                 {% for tableName, tableColumns in potterDb.columns %}
-                                    <li>
-                                        <strong>{{ tableName }}:</strong>
-                                        {{ tableColumns|join(', ') }}
-                                    </li>
+                                    <li><strong>{{ tableName }}:</strong> {{ tableColumns|join(', ') }}</li>
                                 {% endfor %}
                             </ul>
                         </td>
                         <td>
-                            <a href="{{ path('app_dump', {'name': potterDb.name}) }}" class="btn btn-sm btn-info">Faire
-                                un backup</a>
+                            {% if potterDb.name %}
+                                <a href="{{ path('app_dump', {'name': potterDb.name}) }}" class="btn btn-sm btn-info">Faire un backup</a>
+                            {% endif %}
                         </td>
                     </tr>
 
+                    <!-- Informations sur la base de données Backup -->
                     <tr>
-                        <td><a href="{{ path('app_dump', {'name': backupDb.name}) }}">{{ backupDb.name }}</a></td>
-                        <td>{{ backupDb.isConnected ? "<span>
-            <i class='fas fa-check-circle'></i>
-            Connectée
-        </span>" : "<span>
-            <i class='fas fa-times-circle mr-1'></i>
-        </span> Non Connectée" }}</td>
+                        <td>
+                            {% if backupDb.name %}
+                                <a href="{{ path('app_dump', {'name': backupDb.name}) }}">{{ backupDb.name }}</a>
+                            {% else %}
+                                Nom de la base de données non défini
+                            {% endif %}
+                        </td>
+                        <td>{{ backupDb.isConnected ? "<span><i class='fas fa-check-circle'></i> Connectée</span>" : "<span><i class='fas fa-times-circle mr-1'></i> Non Connectée</span>" }}</td>
                         <td>{{ backupDb.tables|join(', ') }}</td>
                         <td>
                             <ul>
                                 {% for tableName, tableColumns in backupDb.columns %}
-                                    <li>
-                                        <strong>{{ tableName }}:</strong>
-                                        {{ tableColumns|join(', ') }}
-                                    </li>
+                                    <li><strong>{{ tableName }}:</strong> {{ tableColumns|join(', ') }}</li>
                                 {% endfor %}
                             </ul>
                         </td>
                         <td>
-                            <a href="{{ path('app_dump', {'name': backupDb.name}) }}" class="btn btn-sm btn-info">Faire un
-                                backup</a>
+                            {% if backupDb.name %}
+                                <a href="{{ path('app_dump', {'name': backupDb.name}) }}" class="btn btn-sm btn-info">Faire un backup</a>
+                            {% endif %}
                         </td>
                     </tr>
+
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+
 {% endblock %}

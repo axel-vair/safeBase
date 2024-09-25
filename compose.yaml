@@ -7,12 +7,13 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-user}
     ports:
       - '5460:5432'
+
   backup:
     image: postgres:${POSTGRES_VERSION:-16}-alpine
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-backup}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
-      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_DB: ${BACKUP_DB:-backup}
+      POSTGRES_PASSWORD: ${BACKUP_PASSWORD:-password}
+      POSTGRES_USER: ${BACKUP_USER:-user}
     ports:
       - '5459:5432'
 
@@ -21,8 +22,21 @@ services:
     restart: always
     ports:
       - '29080:8080'
-    volumes:
-      - database_data:/var/lib/postgresql/data:rw
+
+  apache-php:
+    image: safebase-apache:latest
+    container_name: safebase-apache-php
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    environment:
+      POTTER_DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}
+      BACKUP_DATABASE_URL: postgresql://${BACKUP_USER}:${BACKUP_PASSWORD}@backup:5432/${BACKUP_DB}
+    ports:
+      - '9000:80'
+    depends_on:
+      - database
+      - backup
 
 volumes:
   database_data:
