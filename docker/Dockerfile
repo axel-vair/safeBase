@@ -13,6 +13,7 @@ RUN apt-get update \
        libicu-dev \
        zip \
        unzip \
+       postgresql-client \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

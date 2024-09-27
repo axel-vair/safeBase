@@ -10,50 +10,48 @@ class DumpService
 {
     public function dumpDatabase(EntityManagerInterface $entityManager, string $name, ManagerRegistry $doctrine, ?callable $flashCallback = null): string
     {
-        // Date and hour to version the file
+        // Date et heure pour versionner le fichier
         $dateTime = new \DateTime('now', new DateTimeZone('Europe/Paris'));
         $formattedDateTime = $dateTime->format('d-m-Y_H-i-s');
 
-        // Path file dump with date and hour
+        // Chemin du fichier dump avec date et heure
         $dumpFile = '/var/www/var/dump/' . $name . '_dump_' . $formattedDateTime . '.sql';
 
-        // Ensure the dump directory exists
+        // Assurer que le répertoire de dump existe
         if (!is_dir(dirname($dumpFile))) {
             mkdir(dirname($dumpFile), 0755, true);
         }
 
-        // Determine the container name and command based on the database type
-        $port = '5432';
-        $password = 'password'; // Assurez-vous que ce mot de passe est correct
-
+        // Déterminer le nom du service basé sur le type de base de données
         switch ($name) {
             case 'potter':
-                $containerName = 'safebase_database_1'; // Vérifiez le nom exact du conteneur
+                $containerName = 'database'; // Nom du service dans docker-compose
                 break;
             case 'backup':
-                $containerName = 'safebase_backup_1'; // Vérifiez le nom exact du conteneur
+                $containerName = 'backup'; // Nom du service dans docker-compose
                 break;
             default:
                 if ($flashCallback) {
                     $flashCallback('error', 'Database not found: ' . htmlspecialchars($name));
                 }
-                return ''; // Return an empty string or handle it as needed
+                return ''; // Retourner une chaîne vide ou gérer comme nécessaire
         }
 
         // Build the command for pg_dump
+        $port = '5432';
+        $password = 'password';
         $command = sprintf(
-            'docker exec -t %s sh -c "PGPASSWORD=%s pg_dump -U %s -h localhost -p %s %s" > %s',
-            escapeshellarg($containerName),
+            'PGPASSWORD=%s pg_dump -U %s -h %s -p %s %s > %s',
             escapeshellarg($password),
             escapeshellarg('user'),
+            escapeshellarg($containerName),
             escapeshellarg($port),
             escapeshellarg($name),
             escapeshellarg($dumpFile)
         );
 
-        // Execute the command
+        // Exécuter la commande
         exec($command, $output, $returnVar);
-
 
         if ($returnVar !== 0) {
             if ($flashCallback) {
@@ -71,6 +69,6 @@ class DumpService
             }
         }
 
-        return $dumpFile; // Return the path to the dump file
+        return $dumpFile; // Retourner le chemin du fichier dump
     }
 }

@@ -1,6 +1,6 @@
 services:
   database:
-    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    image: postgres:15.8
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-potter}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
@@ -9,7 +9,7 @@ services:
       - '5460:5432'
 
   backup:
-    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    image: postgres:15.8
     environment:
       POSTGRES_DB: ${BACKUP_DB:-backup}
       POSTGRES_PASSWORD: ${BACKUP_PASSWORD:-password}
