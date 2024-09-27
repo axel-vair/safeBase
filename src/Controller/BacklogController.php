@@ -10,7 +10,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class BacklogController extends AbstractController
 {
@@ -24,7 +24,7 @@ class BacklogController extends AbstractController
     #[Route('/backlog', name: 'app_backups')]
     public function index(ManagerRegistry $doctrine): Response
     {
-        // Récupère les logs de sauvegarde
+        // Get logs
         $backupInfoEntityManager = $doctrine->getManager('default');
         $backupLogRepository = $backupInfoEntityManager->getRepository(BackupLog::class);
         $backupLogs = $backupLogRepository->findAll();
@@ -41,7 +41,7 @@ class BacklogController extends AbstractController
         $backupLog = $backupLogRepository->find($id);
 
         if (!$backupLog) {
-            throw $this->createNotFoundException('Aucun log de sauvegarde trouvé pour l\'ID ' . $id);
+            throw $this->createNotFoundException('No backup log found for id ' . $id);
         }
 
         $filePath = $backupLog->getFilePath();
@@ -79,6 +79,7 @@ class BacklogController extends AbstractController
             $databaseName = $data['database'];
 
             try {
+                // Passer uniquement le nom du fichier à la méthode de restauration
                 $this->restoreService->restoreDatabase(basename($filePath), $databaseName);
                 $this->addFlash('success', 'La base de données a été restaurée avec succès.');
             } catch (\Exception $e) {
@@ -93,4 +94,5 @@ class BacklogController extends AbstractController
             'backupLog' => $backupLog,
         ]);
     }
+
 }

@@ -7,6 +7,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-user}
     ports:
       - '5460:5432'
+    volumes:
+      - shared-data:/var/www/var/dump
 
   backup:
     image: postgres:15.8
@@ -16,6 +18,8 @@ services:
       POSTGRES_USER: ${BACKUP_USER:-user}
     ports:
       - '5459:5432'
+    volumes:
+      - shared-data:/var/www/var/dump
 
   adminer:
     image: adminer
@@ -37,6 +41,8 @@ services:
     depends_on:
       - database
       - backup
+    volumes:
+      - shared-data:/var/www/var/dump
 
 volumes:
-  database_data:
+  shared-data:
