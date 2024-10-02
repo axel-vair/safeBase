@@ -37,30 +37,19 @@ class BacklogController extends AbstractController
     #[Route('/backlog/delete/{id}', name: 'app_backup_delete')]
     public function delete(int $id, ManagerRegistry $doctrine, BackupLogRepository $backupLogRepository): Response
     {
-        // return default entity manager (potter)
         $entityManager = $doctrine->getManager();
-
-        // get the backuplog by id
         $backupLog = $backupLogRepository->find($id);
 
-        // if backuplog id doesnt exist then throw an error
         if (!$backupLog) {
             throw $this->createNotFoundException('No backup log found for id ' . $id);
         }
 
-        // stock in filetpath backlog path
         $filePath = $backupLog->getFilePath();
 
-        // if file exists then delete the file
         if (file_exists($filePath)) {
-            unlink($filePath);
-            $entityManager->remove($backupLog);
-            $entityManager->flush();
-        }
-
-        if (!$entityManager->contains($backupLog)) {
-            $entityManager->persist($backupLog);
-            $entityManager->flush();
+            if (!unlink($filePath)) {
+                $this->addFlash('error', 'Erreur lors de la suppression du fichier.');
+            }
         }
 
         $entityManager->remove($backupLog);
@@ -82,7 +71,6 @@ class BacklogController extends AbstractController
         }
 
         $databases = ['potter', 'backup'];
-
         $form = $this->createForm(RestoreDatabaseType::class, null, ['databases' => $databases]);
 
         $form->handleRequest($request);
@@ -91,7 +79,8 @@ class BacklogController extends AbstractController
             $databaseName = $data['database'];
 
             try {
-                $this->restoreService->restoreDatabase($filePath, $databaseName, $doctrine);
+                // Passer uniquement le nom du fichier à la méthode de restauration
+                $this->restoreService->restoreDatabase(basename($filePath), $databaseName);
                 $this->addFlash('success', 'La base de données a été restaurée avec succès.');
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Erreur lors de la restauration : ' . $e->getMessage());

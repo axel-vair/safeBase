@@ -3,16 +3,11 @@ doctrine:
         default_connection: default
         connections:
             default:
-                url: '%env(POTTER_DATABASE_URL)%'
-                profiling_collect_backtrace: '%kernel.debug%'
-                use_savepoints: true
+                url: '%env(resolve:POTTER_DATABASE_URL)%'
             backup:
                 url: '%env(resolve:BACKUP_DATABASE_URL)%'
-                profiling_collect_backtrace: '%kernel.debug%'
-                use_savepoints: true
     orm:
         auto_generate_proxy_classes: true
-        enable_lazy_ghost_objects: true
         entity_managers:
             default:
                 connection: default

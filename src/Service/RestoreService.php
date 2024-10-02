@@ -1,57 +1,49 @@
 <?php
-
 namespace App\Service;
-
-use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
+
 class RestoreService
 {
-    public function restoreDatabase(string $filePath, string $databaseName, ManagerRegistry $doctrine): bool
+    public function restoreDatabase(string $fileName, string $databaseName): bool
     {
-        // Déterminer le type de base de données et le conteneur Docker
-        switch ($databaseName) {
-            case 'potter':
-                $containerName = "safebase-database-1";
-                $command = $this->buildPgRestoreCommand($containerName, $databaseName, $filePath);
-                break;
-            case 'backup':
-                $containerName = 'safebase-backup-1';
-                $command = $this->buildPgRestoreCommand($containerName, $databaseName, $filePath);
-                break;
-            default:
-                throw new \InvalidArgumentException("Base de données non reconnue : $databaseName");
-        }
+        // Étape 1 : Déterminer le conteneur cible pour la restauration
+        $targetContainer = $this->getTargetContainer($databaseName);
 
-        // Exécuter la commande
-        $process = Process::fromShellCommandline($command);
-        $process->run();
+        // Définir le mot de passe
+        $password = 'password'; // Remplacez par votre mot de passe
 
-        // Vérifier si la commande a réussi
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        // Commande pour restaurer la base de données avec le mot de passe
+        $restoreCommand = [
+            'sh', '-c', "PGPASSWORD='$password' psql -h $targetContainer -U user -d $databaseName -f /var/www/var/dump/$fileName"
+        ];
+
+        // Exécutez la commande de restauration
+        $this->executeProcess($restoreCommand);
 
         return true;
     }
-    private function buildPgRestoreCommand(string $containerName, string $databaseName, string $filePath): string
+
+    private function getTargetContainer(string $databaseName): string
     {
-        return sprintf(
-            'docker exec -i %s psql -U user -d %s < %s',
-            escapeshellarg($containerName),
-            escapeshellarg($databaseName),
-            escapeshellarg($filePath)
-        );
+        switch ($databaseName) {
+            case 'potter':
+                return "safebase-database-1";
+            case 'backup':
+                return "safebase-backup-1";
+            default:
+                throw new \InvalidArgumentException("Base de données non reconnue : $databaseName");
+        }
     }
 
-//    private function buildMysqlRestoreCommand(string $containerName, string $databaseName, string $filePath): string
-//    {
-//        return sprintf(
-//            'docker exec -i %s mysql -u user -ppassword %s < %s',
-//            escapeshellarg($containerName),
-//            escapeshellarg($databaseName),
-//            escapeshellarg($filePath)
-//        );
-//    }
+    private function executeProcess(array $command): void
+    {
+        $process = new Process($command);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+    }
 }

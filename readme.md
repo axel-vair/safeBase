@@ -30,3 +30,6 @@ Le projet vise à développer une solution complète de gestion de la sauvegarde
 
 - [x] **Containérisation**
   - _Le projet devra être conteneurisé incluant l’API, une base MySQL, une base postgres, et le frontend s'il ne fait_
+
+
+docker exec -it safebase-apache-php bash

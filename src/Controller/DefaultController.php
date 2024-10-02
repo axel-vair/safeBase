@@ -10,7 +10,8 @@ use Symfony\Component\Routing\Attribute\Route;
 class DefaultController extends AbstractController
 {
     /**
-     * Function that gets information of the databases Safebase, Backup, Backuptwo, and Fixtures
+     * Fonction qui récupère les informations des bases de données Safebase, Backup, Backuptwo et Fixtures.
+     *
      * @param ManagerRegistry $doctrine
      * @return Response
      * @throws \Doctrine\DBAL\Exception
@@ -18,12 +19,11 @@ class DefaultController extends AbstractController
     #[Route('/', name: 'app_default')]
     public function index(ManagerRegistry $doctrine): Response
     {
-
-        // Connection to the database Potter
+        // Connexion à la base de données Potter via le service 'default'
         $potterConnection = $doctrine->getConnection('default');
         $potterDb = $this->getDatabaseInfo($potterConnection);
 
-        // Connection to the backup database
+        // Connexion à la base de données de sauvegarde
         $backupConnection = $doctrine->getConnection('backup');
         $backupDb = $this->getDatabaseInfo($backupConnection);
 
@@ -32,8 +32,10 @@ class DefaultController extends AbstractController
             'backupDb' => $backupDb,
         ]);
     }
+
     /**
-     * Get database information
+     * Récupère les informations sur la base de données.
+     *
      * @param \Doctrine\DBAL\Connection $connection
      * @return array
      * @throws \Doctrine\DBAL\Exception
@@ -44,26 +46,32 @@ class DefaultController extends AbstractController
         $errorMessage = '';
 
         try {
+            // Essaye de se connecter à la base de données
             $connection->connect();
             $isConnected = true;
         } catch (\Exception $e) {
             $errorMessage = $e->getMessage();
         }
 
+        // Récupération des paramètres de connexion
         $params = $connection->getParams();
         $databaseName = $params['dbname'] ?? 'Nom de la base de données non défini';
 
+        // Initialisation des tableaux pour les tables et colonnes
         $tables = [];
         $columns = [];
 
         if ($isConnected) {
+            // Récupération des informations sur le schéma
             $schemaManager = $connection->createSchemaManager();
             $allTables = $schemaManager->listTableNames();
 
+            // Tables à exclure
             $excludedTables = ['doctrine_migration_versions', 'messenger_messages'];
 
             foreach ($allTables as $tableName) {
                 if (!in_array($tableName, $excludedTables)) {
+                    // Récupération des colonnes pour chaque table
                     $tableColumns = $schemaManager->listTableColumns($tableName);
                     $columns[$tableName] = array_map(function ($column) {
                         return $column->getName();
@@ -74,7 +82,7 @@ class DefaultController extends AbstractController
         }
 
         return [
-            'name' => $databaseName,
+            'name' => !empty($databaseName) ? $databaseName : 'Nom de la base de données non défini',
             'isConnected' => $isConnected,
             'error' => $errorMessage,
             'tables' => $tables,
