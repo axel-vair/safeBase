@@ -8,18 +8,15 @@ class RestoreService
 {
     public function restoreDatabase(string $fileName, string $databaseName): bool
     {
-        // Étape 1 : Déterminer le conteneur cible pour la restauration
+        // Détermine le conteneur cible pour la restauration
         $targetContainer = $this->getTargetContainer($databaseName);
-
-        // Définir le mot de passe
-        $password = 'password'; // Remplacez par votre mot de passe
+        $password = 'password';
 
         // Commande pour restaurer la base de données avec le mot de passe
         $restoreCommand = [
             'sh', '-c', "PGPASSWORD='$password' psql -h $targetContainer -U user -d $databaseName -f /var/www/var/dump/$fileName"
         ];
 
-        // Exécutez la commande de restauration
         $this->executeProcess($restoreCommand);
 
         return true;
