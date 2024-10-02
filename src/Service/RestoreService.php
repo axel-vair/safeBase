@@ -1,8 +1,8 @@
 <?php
 namespace App\Service;
-
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
+
 
 class RestoreService
 {
@@ -11,9 +11,12 @@ class RestoreService
         // Étape 1 : Déterminer le conteneur cible pour la restauration
         $targetContainer = $this->getTargetContainer($databaseName);
 
-        // Commande pour restaurer la base de données
+        // Définir le mot de passe
+        $password = 'password'; // Remplacez par votre mot de passe
+
+        // Commande pour restaurer la base de données avec le mot de passe
         $restoreCommand = [
-            'docker', 'exec', '-i', $targetContainer, 'psql', '-U', 'user', '-d', $databaseName, '-f', "/var/www/var/dump/$fileName"
+            'sh', '-c', "PGPASSWORD='$password' psql -h $targetContainer -U user -d $databaseName -f /var/www/var/dump/$fileName"
         ];
 
         // Exécutez la commande de restauration
@@ -33,7 +36,6 @@ class RestoreService
                 throw new \InvalidArgumentException("Base de données non reconnue : $databaseName");
         }
     }
-
 
     private function executeProcess(array $command): void
     {
