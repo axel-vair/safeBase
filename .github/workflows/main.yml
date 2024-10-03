@@ -1,18 +1,18 @@
-name: Trigger CI/CD
+name: Trigger CI/CD  
 
 on:
-  push:
+  push:  # Événement déclencheur
     branches:
-      - main
+      - main  # Déclenche le workflow lors des push sur la branche "main"
 
 jobs:
-  trigger:
-    runs-on: ubuntu-latest
+  trigger:  # Définition d'un job nommé "trigger"
+    runs-on: ubuntu-latest  # Exécute ce job sur une machine virtuelle Ubuntu
 
-    steps:
-      - name: Trigger CI/CD
-        uses: peter-evans/repository-dispatch@v1
+    steps:  # Étapes à exécuter dans ce job
+      - name: Trigger CI/CD  
+        uses: peter-evans/repository-dispatch@v1  # Utilise l'action pour déclencher un événement dans un autre dépôt
         with:
-          repository: axel-vair/ci-cd
-          event-type: trigger-cd
-          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          repository: axel-vair/ci-cd 
+          event-type: trigger-cd  # Type d'événement à déclencher dans le dépôt cible
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}  # Token d'accès pour authentifier la requête, stocké dans les secrets du dépôt
