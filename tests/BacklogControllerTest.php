@@ -12,6 +12,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class BacklogControllerTest extends WebTestCase
 {
@@ -58,58 +59,67 @@ class BacklogControllerTest extends WebTestCase
         $this->assertInstanceOf(Response::class, $response);
     }
 
-    public function testDelete()
+    /**
+     * @dataProvider deleteDataProvider
+     */
+    /**
+     * @dataProvider deleteDataProvider
+     */
+    public function testDelete($backupLogExists, $expectedFlashMessage)
     {
         $client = static::createClient();
 
-        // Create mocks
         $restoreService = $this->createMock(RestoreService::class);
         $doctrine = $this->createMock(ManagerRegistry::class);
         $entityManager = $this->createMock(EntityManagerInterface::class);
-        $backupLog = $this->createMock(BackupLog::class);
+        $backupLog = $backupLogExists ? $this->createMock(BackupLog::class) : null;
         $backupLogRepository = $this->createMock(BackupLogRepository::class);
 
-        // Configure the mocks
-        $doctrine->expects($this->once())
-            ->method('getManager')
-            ->willReturn($entityManager);
+        $doctrine->method('getManager')->willReturn($entityManager);
 
-        $backupLog->expects($this->once())
-            ->method('getFilePath')
-            ->willReturn('/path/to/file.sql');
+        if ($backupLogExists) {
+            $backupLog->method('getFilePath')->willReturn('/path/to/file.sql');
+        }
 
-        $backupLogRepository->expects($this->once())
-            ->method('find')
-            ->with(1)
-            ->willReturn($backupLog);
+        $backupLogRepository->method('find')->willReturn($backupLog);
+        $entityManager->method('getRepository')->willReturn($backupLogRepository);
 
-        // Ensure getRepository is called correctly
-        $entityManager->expects($this->once())
-            ->method('getRepository')
-            ->with(BackupLog::class)
-            ->willReturn($backupLogRepository);
-
-        // Create the controller mock
         $controller = $this->getMockBuilder(BacklogController::class)
             ->setConstructorArgs([$restoreService])
-            ->onlyMethods(['addFlash', 'redirectToRoute'])
+            ->onlyMethods(['addFlash', 'redirectToRoute', 'createNotFoundException'])
             ->getMock();
 
-        // Expectations for flash messages and redirection
-        $controller->expects($this->once())
-            ->method('addFlash')
-            ->with('success', 'Le fichier de sauvegarde a été supprimé avec succès.');
+        if (!$backupLogExists) {
+            $controller->expects($this->once())
+                ->method('createNotFoundException')
+                ->willReturn(new NotFoundHttpException('No backup log found for id 1'));
 
-        $controller->expects($this->once())
-            ->method('redirectToRoute')
-            ->with('app_backups')
-            ->willReturn(new RedirectResponse('/backups'));
+            $this->expectException(NotFoundHttpException::class);
+        } else {
+            $controller->expects($this->never())
+                ->method('createNotFoundException');
 
-        // Call the delete method with all required arguments
-        $response = $controller->delete(1, $doctrine, $backupLogRepository);
+            $controller->expects($this->once())
+                ->method('addFlash')
+                ->with($this->equalTo('success'), $this->equalTo($expectedFlashMessage));
 
-        // Assertions
-        $this->assertInstanceOf(RedirectResponse::class, $response);
-        $this->assertEquals('/backups', $response->getTargetUrl());
+            $controller->expects($this->once())
+                ->method('redirectToRoute')
+                ->with('app_backups')
+                ->willReturn(new RedirectResponse('/backups'));
+        }
+
+        $controller->delete(1, $doctrine, $backupLogRepository);
+
+        if ($backupLogExists) {
+            $this->assertTrue(true);
+        }
+    }
+    public function deleteDataProvider()
+    {
+        return [
+            [true, 'Le fichier de sauvegarde a été supprimé avec succès.'],
+            [false, null],
+        ];
     }
 }

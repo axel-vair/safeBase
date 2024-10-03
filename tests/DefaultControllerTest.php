@@ -19,12 +19,10 @@ class DefaultControllerTest extends WebTestCase
 
         $connections = [
             'backup' => $this->createMock(Connection::class),
-            'backuptwo' => $this->createMock(Connection::class),
-            'fixtures_db' => $this->createMock(Connection::class),
             'default' => $this->createMock(Connection::class),
         ];
 
-        $doctrine->expects($this->exactly(4))
+        $doctrine->expects($this->exactly(2))
             ->method('getConnection')
             ->willReturnCallback(function ($name) use ($connections) {
                 return $connections[$name];

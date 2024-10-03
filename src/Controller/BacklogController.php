@@ -43,7 +43,6 @@ class BacklogController extends AbstractController
         if (!$backupLog) {
             throw $this->createNotFoundException('No backup log found for id ' . $id);
         }
-
         $filePath = $backupLog->getFilePath();
 
         if (file_exists($filePath)) {
