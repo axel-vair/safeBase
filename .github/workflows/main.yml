@@ -15,4 +15,4 @@ jobs:
         with:
           repository: axel-vair/ci-cd
           event-type: trigger-cd
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
