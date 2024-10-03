@@ -13,6 +13,6 @@ jobs:
       - name: Trigger CI/CD
         uses: peter-evans/repository-dispatch@v1
         with:
-          repository: axel-vair/ci-c
+          repository: axel-vair/ci-cd
           event-type: trigger-cd
           token: ${{ secrets.GITHUB_TOKEN }}
