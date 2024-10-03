@@ -83,6 +83,7 @@ class BacklogControllerTest extends WebTestCase
             ->with(1)
             ->willReturn($backupLog);
 
+        // Ensure getRepository is called correctly
         $entityManager->expects($this->once())
             ->method('getRepository')
             ->with(BackupLog::class)
