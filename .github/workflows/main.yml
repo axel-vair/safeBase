@@ -3,7 +3,7 @@ name: Trigger CI/CD
 on:
   push:  # Événement déclencheur
     branches:
-      - main  # Déclenche le workflow lors des push sur la branche "main"
+      - main  # Déclenche le workflow lors des push sur la branche "main".
 
 jobs:
   trigger:  # Définition d'un job nommé "trigger"
