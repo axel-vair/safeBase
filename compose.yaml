@@ -32,7 +32,7 @@ services:
     container_name: safebase-apache-php
     build:
       context: .
-      dockerfile: ./docker/Dockerfile
+      dockerfile: Dockerfile
     environment:
       POTTER_DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}
       BACKUP_DATABASE_URL: postgresql://${BACKUP_USER}:${BACKUP_PASSWORD}@backup:5432/${BACKUP_DB}
